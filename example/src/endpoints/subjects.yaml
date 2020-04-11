@@ -1,0 +1,26 @@
+name*:
+  is: string
+  max length: 100
+
+slug(): # Computed fields, automatically read-only.
+  is: slug
+  computation:
+    react: name
+    set: slugify(name)
+
+color*:
+  is: css color
+
+weight:
+  is: float
+  minimum: 0
+  defaults to: 1
+
+goal:
+  is: primantissa
+
+room:
+  # If the courses of the subject are always in the same room,
+  # it's set here and will serve as a default for the "add event" modal.
+  is: string
+  max length: 100

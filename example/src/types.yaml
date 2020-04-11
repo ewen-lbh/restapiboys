@@ -1,0 +1,28 @@
+daterange:
+  start:
+    is: datetime
+
+  end:
+    is: datetime
+    validation:
+      The end must be after the start: start <= end
+
+# A integer indicating a count
+count:
+  _: # Use this when your type isn't an object and you're defining its value
+    is: integer
+    minimum: 0
+    defaults to: 0
+
+# A float between 0 and 1
+primantissa:
+  _:
+    is: float
+    maximum: 1
+    minimum: 0
+
+csscolor:
+  _:
+    is: string
+    validation:
+      Must be a valid CSS hex color: is_valid_hex_color(_)

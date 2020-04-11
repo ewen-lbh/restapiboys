@@ -1,0 +1,12 @@
+updated_at():
+  computation:
+    react: "*"
+    set: now()
+  
+created_at():
+  computation:
+    react: "*"
+    set: now()
+    when:
+      - created_at == None
+  

@@ -1,0 +1,30 @@
+title*:
+  is: string
+  max length: 500
+
+subject*:
+  is: <subjects> # <name> points to the object defined in /name/
+
+type*:
+  one of: test, coursework, to_bring, exercise
+
+completed_at():
+  # The last time progress was set to 1
+  is: datetime
+  computation:
+    react: progress # list of properties to react to changes (value is re-computed when these values change)
+    set: now()
+    when:
+      - progress === 1
+
+progress:
+  # 0 means not started,
+  # 1 means finished.
+  is: primantissa
+  defaults to: 0
+
+notes:
+  is: <note>[]
+
+grades:
+  is: <grade>[]

@@ -1,0 +1,32 @@
+title*:
+  is: string
+  max length: 500
+
+actual:
+  # The actual mark
+  is: primantissa
+
+expected:
+  # The mark the user thought it would get after doing the test
+  is: primantissa
+
+goal:
+  # The mark the user set himself as a goal
+  is: primantissa
+
+unit*:
+  is: float
+  minimum: 0
+  prohibit: 0
+
+weight:
+  is: float
+  minimum: 0
+  defaults to: 1
+
+obtained_at():
+  # The datetime where actual was first set to a value other than null.
+  is: datetime
+  computation:
+    react: actual
+    set: now()

@@ -1,0 +1,11 @@
+event:
+  is: <events>
+
+deleted_in:
+  is: daterange
+
+added_in:
+  is: daterange
+
+room:
+  is: string

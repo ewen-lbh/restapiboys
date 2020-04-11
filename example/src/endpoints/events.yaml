@@ -1,0 +1,31 @@
+subject*:
+  # The linked subject
+  is: Subject object
+
+start*:
+  is: time
+
+end*:
+  is: time
+  validation:
+    Must be in the future relative to `start`: end >= start
+
+day*:
+  # 1 is monday, 7 is  sunday (ISO weekdays)
+  is: integer
+  one of: 1, 2, 3, 4, 5, 6, 7
+
+room:
+  is: string
+  max length: 100
+  defaults to: ""
+
+on_even_weeks:
+  # This event happens on even weeks
+  is: boolean
+  defaults to: `true`
+
+on_odd_weeks:
+  # This event happens on odd weeks
+  is: boolean
+  defaults to: `true`

@@ -1,0 +1,20 @@
+theme:
+  one of: light, dark, auto
+  defaults to: auto
+
+year_layout*:
+  # Configure how the year is split.
+  is: daterange[]
+  can be empty: no
+
+starting_week_type:
+  # Whether the first week of school is an 'odd'-type week of 'even'-type.
+  one of: even, odd
+  defaults to: even
+
+grades_unit*:
+  is: float
+  postive: yes
+
+offdays:
+  is: daterange[]

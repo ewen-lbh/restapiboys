@@ -1,0 +1,4 @@
+$inherit: builtin-user
+
+settings:
+  is: <settings>

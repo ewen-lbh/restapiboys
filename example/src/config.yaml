@@ -1,0 +1,16 @@
+# Sets up /auth routes, see https://restapiboys.githubpages.io/authentication
+authentication: jwt
+
+# Sets up account management and creation, see https://restapiboys.githubpages.io/user-management
+users:
+  fields: 
+    - email
+    - password
+    - joined_at
+    - logged_at
+  verify accounts via: email
+  reset passwords via: email
+  
+# Used by the `endpoint(path: str)`
+domain name: api.schoolsyst.com
+https: yes

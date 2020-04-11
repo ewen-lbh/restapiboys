@@ -1,0 +1,25 @@
+title:
+  is: string
+  max length: 500
+  defaults to: ""
+
+content:
+  is: string
+  defaults to: ""
+  serialization: omit from list view
+  validation:
+    External notes must point to a valid URL: type !== 'html' || isURL(content)
+
+thumbnail():
+  is: string
+  computation:
+    react: content, title
+    set: endpoint(`notes/${uuid}/thumbnail`) # endpoint function - prepend with domain-name
+
+type:
+  # For 'external' notes, the content is the URL pointing to the note
+  one of: html, markdown, asciidoc, external
+  defaults to: html
+
+quizzes:
+  is: <quizzes>[]
