@@ -1,5 +1,21 @@
 # RESTAPIBOYS: REST APIs Based On YAML Specifications
 
+--------------------------------------------------------
+
+__This project is in an early stage, and does not work at all yet.__
+
+_The following list tracks broad topics that need to be implemented before the framework can be considered 'usable'_:
+
+- [ ] Endpoints definition handling (WIP)
+- [ ] Routing (WIP)
+- [ ] Database interactions
+- [ ] Authentification
+- [ ] Serialization
+- [ ] Request validation
+- [ ] Database table creation & migration
+
+--------------------------------------------------------
+
 <center>
 Create REST APIs for modern web applications, while keeping your code DRY. Finally.
 </center>
@@ -81,5 +97,5 @@ This is enough to:
 - define the **5** API endpoints
 - define the documentation entry
 
-Documentation coming soon, this is just an idea at this point.
+Documentation coming soon.
 You can take a look at the example to see how an API (schoolsyst's) would be implemented.
