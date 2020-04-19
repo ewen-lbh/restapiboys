@@ -1,7 +1,7 @@
 """
 Common utilities
 """
-from typing import Any, Dict, NamedTuple
+from typing import *
 import os
 import keyword
 import warnings
@@ -9,44 +9,52 @@ import re
 import yaml as pyyaml
 
 
-class ExecYAMLTag(pyyaml.YAMLObject):
-    yaml_tag = "!exec"
+class PythonCodeYAMLTag(pyyaml.YAMLObject):
+    yaml_tag = "!run"
 
     def __init__(self, code):
         self.code = code
 
     def __repr__(self):
-        return "ExecTag({})".format(self.code)
+        return "PythonCode({})".format(self.code)
 
     @classmethod
     def from_yaml(cls, loader, node):
-        return ExecYAMLTag(node.value)
+        return PythonCodeYAMLTag(node.value)
 
     @classmethod
     def to_yaml(cls, dumper, data):
         return dumper.represent_scalar(cls.yaml_tag, data.env_var)
 
 
-pyyaml.SafeLoader.add_constructor("!exec", ExecYAMLTag.from_yaml)
-pyyaml.SafeDumper.add_multi_representer(ExecYAMLTag, ExecYAMLTag.to_yaml)
-
-
 class yaml:
     @staticmethod
-    def loads(stream: str) -> Dict[str, Any]:
-        loaded = pyyaml.load(stream, Loader=pyyaml.SafeLoader)
-        if type(loaded) is not dict:
+    def loads(
+        stream: str, multiple_documents: bool = False
+    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+        pyyaml.SafeLoader.add_constructor("!exec", PythonCodeYAMLTag.from_yaml)
+        pyyaml.SafeDumper.add_multi_representer(
+            PythonCodeYAMLTag, PythonCodeYAMLTag.to_yaml
+        )
+        if multiple_documents:
+            loaded = list(pyyaml.load_all(stream, Loader=pyyaml.SafeLoader))
+        else:
+            loaded = pyyaml.load(stream, Loader=pyyaml.SafeLoader)
+        if type(loaded) is not dict and not multiple_documents:
             raise ValueError(f"The provided YAML stream does not define a dict")
         return loaded
 
     @classmethod
-    def load_file(cls: "yaml", filepath: str) -> Dict[str, Any]:
+    def load_file(
+        cls, filepath: str, multiple_documents=False
+    ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
         with open(filepath, "r") as file:
             stream: str = file.read()
         try:
-            return cls.loads(stream)
+            return cls.loads(stream, multiple_documents)
         except Exception as e:
-            print(f"Something went wrong while parsing YAML file {filepath}:", e)
+            print(f"Something went wrong while parsing YAML file {filepath}:")
+            raise e
 
     @staticmethod
     def dumps(obj: Any) -> str:
@@ -101,7 +109,8 @@ def string_to_identifier(string: str) -> str:
 
     return string
 
-def replace_whitespace_in_keys(obj: Dict[str, Any], sub: str = '_') -> Dict[str, Any]:
+
+def replace_whitespace_in_keys(obj: Dict[str, Any], sub: str = "_") -> Dict[str, Any]:
     """
     Removes whitespace from dict keys
     
@@ -114,3 +123,15 @@ def replace_whitespace_in_keys(obj: Dict[str, Any], sub: str = '_') -> Dict[str,
         key = re.sub(r"\s", sub, key)
         normalized[key] = value
     return normalized
+
+
+def is_list_uniformely_typed(obj: list) -> bool:
+    """
+    Checks if the given list has all of its elements
+    of the same type
+    """
+    if len(obj) < 1:
+        return None
+
+    first_element_type = type(obj[0])
+    return all([type(el) is first_element_type for el in obj])

@@ -1,10 +1,13 @@
 from enum import Enum
-from restapiboys_old.routes import SPECIAL_ROUTES_PATTERN
 from typing import *
 import os
 import re
 from restapiboys.http import RequestMethod
-from restapiboys.fields import ResourceFieldConfig, resolve_fields_config, resolve_synonyms
+from restapiboys.fields import (
+    ResourceFieldConfig,
+    ResourceFieldConfigError,
+    resolve_fields_config,
+)
 from restapiboys.utils import string_to_identifier, yaml, get_path
 
 
@@ -19,26 +22,30 @@ class ResourceConfig(NamedTuple):
         RequestMethod.PATCH,
         RequestMethod.DELETE,
     ]
+    inherits: Optional[str] = None
 
-def get_endpoints_names(parent="/") -> Iterable[str]:
-    folder = get_path('endpoints', parent)
+
+def get_endpoints_routes(parent="/") -> Iterable[str]:
+    folder = get_path("endpoints", parent)
     for filename in os.listdir(folder):
         if os.path.isdir(filename):
             parent = os.path.join(folder, filename)
-            for endpoint in get_endpoints_names(parent):
+            for endpoint in get_endpoints_routes(parent):
                 yield endpoint
 
         filetitle, extension = os.path.splitext(filename)
-        if extension != '.yaml':
+        if extension != ".yaml":
             continue
-            
-        if SPECIAL_ROUTES_PATTERN.match(filetitle):
+
+        if is_special_endpoint(filetitle):
             continue
-    
+
         yield filetitle
+
 
 def get_endpoints(directory="endpoints") -> Iterable[ResourceConfig]:
     for filename in os.listdir(get_path(directory)):
+        print(f"---\nEndpoint: {filename}\n---")
         # Get the full path
         filepath = get_path(directory, filename)
         # If its a directory, recursively get endpoints
@@ -56,7 +63,18 @@ def get_endpoints(directory="endpoints") -> Iterable[ResourceConfig]:
         if is_special_endpoint(filetitle):
             continue
         # Load the config file to get the fields from the endpoint
-        fields = yaml.load_file(filepath)
+        # This file can either have:
+        # - 1 document, in this case we have no directives
+        # - 2 documents, the first one defines directives & the second one fields.
+        documents = yaml.load_file(filepath, multiple_documents=True)
+        if len(documents) == 1:
+            directives, fields = documents[0], {}
+        elif len(documents) == 2:
+            directives, fields = documents
+        else:
+            raise ResourceFieldConfigError(
+                f"The endpoint defined in {filename} defines more than 2 documents."
+            )
         # Turn it into a ResourceFieldConfig list
         fields = resolve_fields_config(fields)
         # Create a ResourceConfig
@@ -64,11 +82,13 @@ def get_endpoints(directory="endpoints") -> Iterable[ResourceConfig]:
             endpoint=f"/{filetitle}",
             fields=list(fields),
             identifier=string_to_identifier(filetitle),
+            **directives,
         )
         # Inherit values from __default__
         endpoint = inherit_default_endpoint(endpoint)
         # yield it
         yield endpoint
+
 
 def get_endpoint_defaults_fields() -> Optional[List[ResourceFieldConfig]]:
     """
@@ -107,6 +127,6 @@ def inherit_default_endpoint(endpoint: ResourceConfig) -> ResourceConfig:
         field for field in default_fields if field.name not in endpoint_field_names
     ]
     # Add the fields from the endpoint
-    merged_fields.append(*endpoint.fields)
+    merged_fields += endpoint.fields
     # Return the ResourceConfig
-    return ResourceConfig(**endpoint._asdict(), fields=merged_fields)
+    return ResourceConfig(**{**endpoint._asdict(), "fields": merged_fields})

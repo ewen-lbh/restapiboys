@@ -1,4 +1,6 @@
-$inherit: builtin-user
+inherit: builtin-user
+allowed_methods: [GET, PATCH]
+---
 
 settings:
   is: <settings>

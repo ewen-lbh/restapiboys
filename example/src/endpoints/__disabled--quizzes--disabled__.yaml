@@ -21,7 +21,7 @@ tries.total:
 modified_at:
   # When was `questions` or `name` last modified
   is: datetime
-  defaults to: !exec now()
+  defaults to: now()
 
 time_spent:
   # the tot:al time spent on this quizz, in seconds.

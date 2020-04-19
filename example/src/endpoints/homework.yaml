@@ -15,7 +15,7 @@ completed_at():
     react: progress # list of properties to react to changes (value is re-computed when these values change)
     set: now()
     when:
-      - progress === 1
+      - progress == 1
 
 progress:
   # 0 means not started,

@@ -1,9 +1,12 @@
-$allowed_methods:
-- GET
-- PATCH
+# Directives
+allowed methods:
+  - GET
+  - PATCH
 
+---
+# Fields
 theme:
-  one of: light, dark, auto
+  one of: [light, dark, auto]
   defaults to: auto
 
 year_layout*:
@@ -13,12 +16,12 @@ year_layout*:
 
 starting_week_type:
   # Whether the first week of school is an 'odd'-type week of 'even'-type.
-  one of: even, odd
+  one of: [even, odd]
   defaults to: even
 
 grades_unit*:
   is: number
-  postive: yes
+  positive: yes
 
 offdays:
   is: daterange[]

@@ -1,9 +1,11 @@
 updated_at():
+  is: datetime
   computation:
     react: "*"
     set: now()
   
 created_at():
+  is: datetime
   computation:
     react: "*"
     set: now()
