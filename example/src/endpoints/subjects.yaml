@@ -12,7 +12,7 @@ color*:
   is: css color
 
 weight:
-  is: float
+  is: number
   minimum: 0
   defaults to: 1
 

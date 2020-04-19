@@ -15,12 +15,12 @@ goal:
   is: primantissa
 
 unit*:
-  is: float
+  is: number
   minimum: 0
   prohibit: 0
 
 weight:
-  is: float
+  is: number
   minimum: 0
   defaults to: 1
 

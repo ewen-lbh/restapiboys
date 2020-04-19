@@ -6,7 +6,7 @@ subject*:
   is: <subjects> # <name> points to the object defined in /name/
 
 type*:
-  one of: test, coursework, to_bring, exercise
+  one of: [test, coursework, to_bring, exercise]
 
 completed_at():
   # The last time progress was set to 1

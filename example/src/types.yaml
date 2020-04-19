@@ -14,10 +14,10 @@ count:
     minimum: 0
     defaults to: 0
 
-# A float between 0 and 1
+# A decimal between 0 and 1
 primantissa:
   _:
-    is: float
+    is: number
     maximum: 1
     minimum: 0
 

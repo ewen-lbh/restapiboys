@@ -23,9 +23,9 @@ room:
 on_even_weeks:
   # This event happens on even weeks
   is: boolean
-  defaults to: `true`
+  defaults to: true
 
 on_odd_weeks:
   # This event happens on odd weeks
   is: boolean
-  defaults to: `true`
+  defaults to: true

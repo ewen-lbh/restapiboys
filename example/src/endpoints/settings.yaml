@@ -1,3 +1,7 @@
+$allowed_methods:
+- GET
+- PATCH
+
 theme:
   one of: light, dark, auto
   defaults to: auto
@@ -13,7 +17,7 @@ starting_week_type:
   defaults to: even
 
 grades_unit*:
-  is: float
+  is: number
   postive: yes
 
 offdays:

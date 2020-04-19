@@ -4,7 +4,7 @@ name*:
 
 questions:
   # An array of questions. The definition of those object is still a work in progress.
-  is: quiz-quesion[]
+  is: quiz-question[]
 
 tries.test: # Use dot notation to imply nested objects.
   # Number of trials in test mode
@@ -21,7 +21,7 @@ tries.total:
 modified_at:
   # When was `questions` or `name` last modified
   is: datetime
-  defaults to: `${now()}`
+  defaults to: !exec now()
 
 time_spent:
   # the tot:al time spent on this quizz, in seconds.
