@@ -4,7 +4,7 @@ import json
 import urllib
 
 
-class RequestMethod(Enum):
+class RequestMethod(str, Enum):
     CONNECT = "CONNECT"
     DELETE = "DELETE"
     GET = "GET"
@@ -16,7 +16,7 @@ class RequestMethod(Enum):
     TRACE = "TRACE"
 
 
-class StatusCode(Enum):
+class StatusCode(str, Enum):
     CONTINUE = "100 Continue"
     SWITCHING_PROTOCOLS = "101 Switching Protocols"
     EARLY_HINTS = "103 Early Hints"
