@@ -3,7 +3,7 @@ import re
 
 # Incomprehensible ImportError: cannot import name 'get_endpoints_routes' from 'restapiboys.endpoints' (/mnt/d/projects/restapiboys/restapiboys/endpoints.py)
 # from restapiboys.endpoints import get_endpoints_routes
-from restapiboys.utils import replace_whitespace_in_keys
+from restapiboys.utils import replace_whitespace_in_keys, resolve_synonyms_in_dict, resolve_synonyms_to_primary
 
 CONFIG_KEYS_SYNONYMS = {
     "type": ["is"],
@@ -52,6 +52,7 @@ class ResourceFieldConfig(NamedTuple):
     positive: Optional[
         bool
     ] = None  # only positive if True, only negative if False, either if True
+    multiple: bool = False # Can be defined by the shortcut typename[] on the `type` property.
 
 
 def resolve_synonyms(field_config: Dict[str, Any]) -> Dict[str, Any]:
@@ -59,24 +60,7 @@ def resolve_synonyms(field_config: Dict[str, Any]) -> Dict[str, Any]:
     Resolves synonyms in field configuration keys, as defined
     by `CONFIG_KEYS_SYNONYMS`.
     """
-    resolved = {}
-    print(f"    Resolving synonyms. Before: {field_config!r}")
-    # Iterate over the configuration key-value pairs for this field
-    for key, value in field_config.items():
-        was_in_synonyms = False
-        # Iterate over the synonyms
-        for primary, synonyms in CONFIG_KEYS_SYNONYMS.items():
-            # If the current config kv-pair for this field is a synonym
-            if key == primary or key in synonyms:
-                was_in_synonyms = True
-                # Assign the "primary" key to the value
-                resolved[primary] = value
-        # If the current kv-pair does not have synonyms defined
-        if not was_in_synonyms:
-            # Assign the kv's key to its value
-            resolved[key] = value
-    print(f"    Synonyms resolved to {resolved!r}")
-    return resolved
+    return resolve_synonyms_in_dict(CONFIG_KEYS_SYNONYMS, field_config)
 
 
 def resolve_field_name_shortcuts(field: ResourceFieldConfig) -> ResourceFieldConfig:
@@ -132,7 +116,7 @@ def resolve_fields_config(
 ) -> List[ResourceFieldConfig]:
     fields = []
     for field_name, field_config in fields_config.items():
-        print(f"Resolving field {field_name!r}")
+        # print(f"Resolving field {field_name!r}")
         # First replace whitespace from keys with underscores
         field_config = replace_whitespace_in_keys(field_config)
         # Then resolve synonyms

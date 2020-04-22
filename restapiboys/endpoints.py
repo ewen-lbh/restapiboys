@@ -1,4 +1,5 @@
 from enum import Enum
+from restapiboys.directives import RESOURCE_DIRECTIVES_SYNONYMS
 from typing import *
 import os
 import re
@@ -8,7 +9,14 @@ from restapiboys.fields import (
     ResourceFieldConfigError,
     resolve_fields_config,
 )
-from restapiboys.utils import string_to_identifier, yaml, get_path
+from restapiboys.utils import (
+    replace_whitespace_in_keys,
+    resolve_synonyms_in_dict,
+    resolve_synonyms_to_primary,
+    string_to_identifier,
+    yaml,
+    get_path,
+)
 
 
 class ResourceConfig(NamedTuple):
@@ -45,7 +53,6 @@ def get_endpoints_routes(parent="/") -> Iterable[str]:
 
 def get_endpoints(directory="endpoints") -> Iterable[ResourceConfig]:
     for filename in os.listdir(get_path(directory)):
-        print(f"---\nEndpoint: {filename}\n---")
         # Get the full path
         filepath = get_path(directory, filename)
         # If its a directory, recursively get endpoints
@@ -66,15 +73,21 @@ def get_endpoints(directory="endpoints") -> Iterable[ResourceConfig]:
         # This file can either have:
         # - 1 document, in this case we have no directives
         # - 2 documents, the first one defines directives & the second one fields.
-        documents = yaml.load_file(filepath, multiple_documents=True)
+        documents: Tuple[Dict[str, Any], Dict[str, Any]] = yaml.load_file(
+            filepath, multiple_documents=True
+        )
         if len(documents) == 1:
-            directives, fields = documents[0], {}
+            fields, directives = documents[0], {}
         elif len(documents) == 2:
             directives, fields = documents
         else:
             raise ResourceFieldConfigError(
                 f"The endpoint defined in {filename} defines more than 2 documents."
             )
+        # Remove whitespace from directives
+        directives = replace_whitespace_in_keys(directives)
+        # Resolve synonyms
+        directives = resolve_synonyms_in_dict(RESOURCE_DIRECTIVES_SYNONYMS, directives)
         # Turn it into a ResourceFieldConfig list
         fields = resolve_fields_config(fields)
         # Create a ResourceConfig

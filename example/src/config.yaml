@@ -14,3 +14,8 @@ users:
 # Used by the `endpoint(path: str)`
 domain name: api.schoolsyst.com
 https: yes
+
+# Used to setup the please_contact property when a 5xx error occurs
+contact info:
+  name: Ewen Le Bihan
+  email: ewen.lebihan7@gmail.com

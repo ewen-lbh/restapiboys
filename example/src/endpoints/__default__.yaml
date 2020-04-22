@@ -4,11 +4,6 @@ updated_at():
     react: "*"
     set: now()
   
-created_at():
+created_at:
   is: datetime
-  computation:
-    react: "*"
-    set: now()
-    when:
-      - created_at == None
-  
+  defaults to: = now()

@@ -32,7 +32,7 @@ class yaml:
     def loads(
         stream: str, multiple_documents: bool = False
     ) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        pyyaml.SafeLoader.add_constructor("!exec", PythonCodeYAMLTag.from_yaml)
+        pyyaml.SafeLoader.add_constructor("!run", PythonCodeYAMLTag.from_yaml)
         pyyaml.SafeDumper.add_multi_representer(
             PythonCodeYAMLTag, PythonCodeYAMLTag.to_yaml
         )
@@ -53,7 +53,7 @@ class yaml:
         try:
             return cls.loads(stream, multiple_documents)
         except Exception as e:
-            print(f"Something went wrong while parsing YAML file {filepath}:")
+            # print(f"Something went wrong while parsing YAML file {filepath}:")
             raise e
 
     @staticmethod
@@ -69,6 +69,7 @@ class yaml:
             file.write(stream)
 
 
+# TODO: Detect instead of hardcoding it
 def get_path(*fragments: str) -> str:
     return os.path.abspath(
         os.path.join(os.path.dirname(__file__), "..", "example", "src", *fragments)
@@ -135,3 +136,32 @@ def is_list_uniformely_typed(obj: list) -> bool:
 
     first_element_type = type(obj[0])
     return all([type(el) is first_element_type for el in obj])
+
+def resolve_synonyms_to_primary(synonyms_map: Dict[str, List[str]], string: str) -> Optional[str]:
+    """
+    Let _k_ be the keys of `synonyms_map` and _v_ the values.
+    This will take a string as input, and:
+    - if it is, _k_, return the string unchanged
+    - if it is found in _v_, return _k_ of the corresponding list
+    - else, return `None`
+    """
+    # Iterate over the synonyms
+    for primary, synonyms in synonyms_map.items():
+        # If the current config kv-pair for this field is a synonym
+        if string == primary or string in synonyms:
+            # Assign the "primary" key to the value
+            return primary
+    return None
+
+def resolve_synonyms_in_dict(synonyms_map: Dict[str, List[str]], obj: dict) -> dict:
+    resolved = {}
+    for key, value in obj.items():
+        resolved_key = key
+        for primary, synonym in synonyms_map.items():
+            if key == primary or key in synonym:
+                resolved_key = primary
+        if type(value) is dict:
+            resolved[resolved_key] = resolve_synonyms_in_dict(synonyms_map, value)
+        else:
+            resolved[resolved_key] = value
+    return resolved

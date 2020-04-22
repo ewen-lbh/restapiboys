@@ -6,10 +6,10 @@ slug(): # Computed fields, automatically read-only.
   is: slug
   computation:
     react: name
-    set: !run slugify(name)
+    set: slugify(name)
 
 color*:
-  is: css color
+  is: color
 
 weight:
   is: number

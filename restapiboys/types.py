@@ -21,6 +21,7 @@ NATIVE_FIELD_TYPES = [
     "time",
     "date",
     "boolean",
+    "slug",
 ]
 
 NATIVE_TYPES_MAPPING = {int: "integer", str: "string", float: "number", bool: "boolean"}
@@ -37,7 +38,7 @@ def get_custom_types() -> Dict[str, List[ResourceFieldConfig]]:
     for name, fields in types_configs.items():
         resolved_fields = []
         for field_name, field_config in fields.items():
-            print(f"Resolving type field {field_name!r}")
+            # print(f"Resolving type field {field_name!r}")
             # First replace whitespace from keys with underscores
             field_config = replace_whitespace_in_keys(field_config)
             # Then resolve synonyms
@@ -87,9 +88,15 @@ def resolve_custom_types(
       is: date
     ```
     """
+    ARRAYED_TYPE_MARKER_PATTERN = re.compile(r"^(.+)\[\]$")
     resolved_fields = []
     for field in fields:
-        print(f"Resolving types for field {field.name!r}")
+        # Start by resolving arrays-of notation (typename[])
+        if ARRAYED_TYPE_MARKER_PATTERN.match(field.type):
+            type_name = ARRAYED_TYPE_MARKER_PATTERN.search(field.type).groups()[0]
+            field = field._replace(multiple=True, type=type_name)
+
+        # print(f"Resolving types for field {field.name!r}")
         # Is a native type
         if field.type in NATIVE_FIELD_TYPES:
             resolved_fields.append(field)
@@ -101,7 +108,7 @@ def resolve_custom_types(
             referenced_endpoint = RELATIONAL_TYPE_DECLARATION_PATTERN.search(
                 field.type
             ).groups()
-            print(f"    Is a relational type to endpoint {referenced_endpoint!r}.")
+            # print(f"    Is a relational type to endpoint {referenced_endpoint!r}.")
             # Incomprehensible
             # ImportError: cannot import name 'get_endpoints_routes' from 'restapiboys.endpoints' (/mnt/d/projects/restapiboys/restapiboys/endpoints.py)
             # if '/' + referenced_endpoint not in get_endpoints_routes():
@@ -132,7 +139,7 @@ def resolve_custom_types(
             resolved_fields.append(field)
         # Multi-field type
         else:
-            print(f"    Custom type has subfields: {type_config!r}")
+            # print(f"    Custom type has subfields: {type_config!r}")
             # Each field defined by the custom type
             for subfield in type_config:
                 # Create the new field name: field.subfield
@@ -154,4 +161,5 @@ def infer_field_type(field_config: Dict[str, Any]) -> Optional[str]:
             python_type = type(whitelist[0])
             infered_type = NATIVE_TYPES_MAPPING.get(python_type)
             return infered_type
+    if field_config.get('max_length')
     return None

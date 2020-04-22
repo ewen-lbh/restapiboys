@@ -21,7 +21,7 @@ primantissa:
     maximum: 1
     minimum: 0
 
-csscolor:
+color:
   _:
     is: string
     validation:
