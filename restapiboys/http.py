@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import *
-import json
+import simplejson as json
 import urllib
 
 
@@ -60,7 +60,7 @@ class StatusCode(str, Enum):
     TOO_MANY_REQUESTS_ = "429 Too Many Requests"
     REQUEST_HEADER_FIELDS_TOO_LARGE = "431 Request Header Fields Too Large"
     UNAVAILABLE_FOR_LEGAL_REASONS = "451 Unavailable For Legal Reasons"
-    INTERNAL_SERVER_ERROR_ = "500 Internal Server Error"
+    INTERNAL_SERVER_ERROR = "500 Internal Server Error"
     NOT_IMPLEMENTED = "501 Not Implemented"
     BAD_GATEWAY = "502 Bad Gateway"
     SERVICE_UNAVAILABLE = "503 Service Unavailable"
