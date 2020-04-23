@@ -1,4 +1,5 @@
 from typing import *
+from restapiboys import log
 import re
 
 # Incomprehensible ImportError: cannot import name 'get_endpoints_routes' from 'restapiboys.endpoints' (/mnt/d/projects/restapiboys/restapiboys/endpoints.py)

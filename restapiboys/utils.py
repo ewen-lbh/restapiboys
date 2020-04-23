@@ -2,6 +2,7 @@
 Common utilities
 """
 from typing import *
+from restapiboys import log
 import os
 import keyword
 import warnings

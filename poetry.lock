@@ -79,6 +79,14 @@ tornado = ["tornado (>=0.2)"]
 
 [[package]]
 category = "main"
+description = "Extracts OS Browser etc information from http user agent string"
+name = "httpagentparser"
+optional = false
+python-versions = "*"
+version = "1.9.0"
+
+[[package]]
+category = "main"
 description = "Read metadata from Python packages"
 marker = "python_version < \"3.8\""
 name = "importlib-metadata"
@@ -233,7 +241,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "f73c333cd1547212d55c2c34650f0e88138c57b0b55d427a9ae445e1faeedb6a"
+content-hash = "f5d53999c994ffe85462d230086dffc767a423296a9b97710da7e36ce78328a4"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -263,6 +271,9 @@ docopt = [
 gunicorn = [
     {file = "gunicorn-19.10.0-py2.py3-none-any.whl", hash = "sha256:c3930fe8de6778ab5ea716cab432ae6335fa9f03b3f2c3e02529214c476f4bcb"},
     {file = "gunicorn-19.10.0.tar.gz", hash = "sha256:f9de24e358b841567063629cd0a656b26792a41e23a24d0dcb40224fc3940081"},
+]
+httpagentparser = [
+    {file = "httpagentparser-1.9.0.tar.gz", hash = "sha256:23805523b61b04b9412cd98cd1fe0415401045fd5447d3b62a02ae60d22814ed"},
 ]
 importlib-metadata = [
     {file = "importlib_metadata-1.6.0-py2.py3-none-any.whl", hash = "sha256:2a688cbaa90e0cc587f1df48bdc97a6eadccdcd9c35fb3f976a09e3b5016d90f"},

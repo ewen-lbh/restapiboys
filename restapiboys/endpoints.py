@@ -1,6 +1,7 @@
 from enum import Enum
 from restapiboys.directives import RESOURCE_DIRECTIVES_SYNONYMS
 from typing import *
+from restapiboys import log
 import os
 import re
 from restapiboys.http import RequestMethod

@@ -1,7 +1,10 @@
 from enum import Enum
+from re import sub
 from typing import *
+from restapiboys import log
 import simplejson as json
 import urllib
+import httpagentparser
 
 
 class RequestMethod(str, Enum):
@@ -73,6 +76,19 @@ class StatusCode(str, Enum):
     NETWORK_AUTHENTICATION_REQUIRED = "511 Network Authentication Required"
 
 
+class NameVersion(NamedTuple):
+    name: str
+    version: str
+
+
+NameVersion.__str__ = lambda self: f"{self.name} v{self.version}"
+
+
+class UserAgent(NamedTuple):
+    browser: NameVersion
+    os: NameVersion
+
+
 class Request(NamedTuple):
     route: str
     is_ssl: bool
@@ -81,25 +97,48 @@ class Request(NamedTuple):
     scheme: str
     host: str
     gunicorn_env: Dict[str, Any]
+    client: UserAgent
 
     @staticmethod
     def from_gunicorn_environ(environ: Dict[str, Any]) -> "Request":
         return Request(
-            route=environ["PATH_INFO"],
+            route=remove_route_trailing_slash(environ["PATH_INFO"]),
             is_ssl=environ["wsgi.url_scheme"] == "https",
             method=environ["REQUEST_METHOD"],
             query=parse_query_string(environ["QUERY_STRING"]),
-            scheme=environ['wsgi.url_scheme'],
-            host=environ['HTTP_HOST'],
+            scheme=environ["wsgi.url_scheme"],
+            host=environ["HTTP_HOST"],
+            client=parse_useragent(environ["HTTP_USER_AGENT"]),
             gunicorn_env=environ,
         )
+
+
+def remove_route_trailing_slash(route: str) -> str:
+    if route == "/":
+        return route
+    if route.endswith("/"):
+        return route[:-1]
+    return route
+
+
+def parse_useragent(useragent: str) -> UserAgent:
+    parsed = httpagentparser.detect(useragent, fill_none=True)
+    return UserAgent(
+        browser=NameVersion(**parsed["browser"]), os=NameVersion(**parsed["os"]),
+    )
 
 
 def parse_query_string(query_string) -> Dict[str, str]:
     return {k: v[0] for k, v in dict(urllib.parse.parse_qs(query_string)).items()}
 
+
 class Response:
-    def __init__(self, status: StatusCode, headers: Dict[str, Any], body: Union[list, dict, str, bytes]):
+    def __init__(
+        self,
+        status: StatusCode,
+        headers: Dict[str, Any],
+        body: Union[list, dict, str, bytes],
+    ):
         # Get the HTTP Status
         self.status = status.value
         # Store the original body's type
@@ -107,10 +146,11 @@ class Response:
         # Get the bytes-encoded body
         self.body = self.encode_body(body)
         # Get the headers, with automatic headers defined as a base
-        self.headers = list(self.stringify_header_values({
-            **self.get_automatic_headers(),
-            **headers
-        }).items())
+        self.headers = list(
+            self.stringify_header_values(
+                {**self.get_automatic_headers(), **headers}
+            ).items()
+        )
 
     @staticmethod
     def encode_body(body: Union[list, dict, str, bytes]) -> bytes:
@@ -128,16 +168,16 @@ class Response:
             # Serialize to JSON
             stringified = json.dumps(body)
         # Encode w/ UTF-8
-        encoded = bytes(stringified, 'utf-8')
+        encoded = bytes(stringified, "utf-8")
         # Return encoded data
         return encoded
-    
+
     @staticmethod
     def stringify_header_values(headers: Dict[str, Any]) -> Dict[str, str]:
         """
         Convert a dict's values to strings
         """
-        return { k:str(v) for k,v in headers.items() }
+        return {k: str(v) for k, v in headers.items()}
 
     def get_automatic_headers(self) -> Dict[str, str]:
         """
@@ -146,13 +186,17 @@ class Response:
         headers = {}
         # Get Content-Type
         if self.orig_body_type is bytes:
-            headers['Content-Type'] = 'application/octet-stream'
+            headers["Content-Type"] = "application/octet-stream"
         if self.orig_body_type is str:
-            headers['Content-Type'] = 'text/plain'
+            headers["Content-Type"] = "text/plain"
         else:
-            headers['Content-Type'] = 'application/json'
+            headers["Content-Type"] = "application/json"
 
         # Get Content-Length
-        headers['Content-Length'] = len(self.body)
-        
+        headers["Content-Length"] = len(self.body)
+
         return headers
+
+    def is_error(self) -> bool:
+        status_no = int(self.status[:3])
+        return status_no >= 400

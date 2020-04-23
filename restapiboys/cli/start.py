@@ -1,8 +1,12 @@
 from multiprocessing import cpu_count
-from os import getcwd, listdir
+from os import getcwd, listdir, environ
+from restapiboys.config import get_api_config
 import subprocess
 from restapiboys.utils import get_path
 from typing import *
+from restapiboys import log
+import logging
+
 
 WATCH_FILES = (
     get_path("endpoints/*.{yaml,py}"),
@@ -12,23 +16,32 @@ WATCH_FILES = (
     get_path("email-templates/*.{txt,html}"),
 )
 
-
-def run(args):
+def run(args: dict):
+    bound_address = "%s:%s" % (args["--address"], args["--port"])
+    scheme = 'http' if args['--address'] in ('localhost', '127.0.0.1') else 'https'
+    workers_count = get_workers_count(args['--workers'])
+    
+    log.info('Spinning up a webserver listening on {}', f'{scheme}://{bound_address}')
+    
+    log.debug('Giving {} workers to gunicorn', workers_count)
+    
     project_yaml_files = [
         get_path("endpoints", f)
         for f in listdir(get_path("endpoints"))
         if f.endswith(".yaml")
     ] + [get_path("types.yaml"), get_path("config.yaml")]
-
+       
     config = {
-        "bind": "%s:%s" % (args["--address"], args["--port"]),
-        "workers": get_workers_count(args["--workers"]),
+        "bind": bound_address,
+        "workers": workers_count,
         "log-level": "error",
         "reload": args["--watch"],
         # "reload-extra-file": project_yaml_files if args["--watch"] else None,
     }
-    wd = getcwd()
-    # print(f"Running in {wd}")
+    
+    if config['reload']:
+        log.info('Watching for file changes...')
+    
     subprocess.call(
         ["poetry", "run", "gunicorn", "restapiboys.server:requests_handler"]
         + config_dict_to_cli_args(config)
@@ -47,11 +60,6 @@ def config_dict_to_cli_args(config: Dict[str, Any]) -> List[str]:
         if value:
             if type(value) is bool:
                 args.append(f"--{key}")
-            # elif type(value) is str:
-            #     args.append(f'--{key}="{value}"')
-            # elif type(value) is list:
-            #     for val in value:
-            #         args.append(f'--{key}="{val}"')
             else:
                 args.append(f"--{key}={value}")
     return args

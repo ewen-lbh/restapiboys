@@ -1,4 +1,5 @@
 from typing import *
+from restapiboys import log
 from restapiboys.http import RequestMethod
 
 RESOURCE_DIRECTIVES_SYNONYMS = {

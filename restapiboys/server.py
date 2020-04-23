@@ -3,6 +3,7 @@ from restapiboys.utils import recursive_namedtuple_to_dict
 from restapiboys.http import Request, StatusCode, Response
 from restapiboys.endpoints import get_endpoints, get_endpoints_routes
 from typing import *
+from restapiboys import log
 import multiprocessing
 
 
@@ -14,15 +15,26 @@ DEFAULT_GUNICORN_OPTIONS = {
 
 
 def requests_handler(environ, start_response):
-    req = Request.from_gunicorn_environ(environ)
-    config = get_api_config()
-    print(f"<-- {req.method} {req.route}")
+    try:
+        req = Request.from_gunicorn_environ(environ)
+        config = get_api_config()
+    except Exception as exception:
+        log.critical(str(exception))
+        return
     try:
         available_routes = get_endpoints_routes()
         if req.route.startswith("/specs") and "/specs" not in available_routes:
             res = handle_spec_route(req)
+        elif not endpoint_exists(req.route):
+            res = Response(
+                StatusCode.NOT_FOUND,
+                {},
+                {"error": f"The resource {req.route} was not found"},
+            )
         else:
-            res = Response(StatusCode.OK, {}, {"error": "Not implemented yet."})
+            res = Response(
+                StatusCode.NOT_IMPLEMENTED, {}, {"error": "Not implemented yet."}
+            )
     except Exception as exception:
         res = Response(
             StatusCode.INTERNAL_SERVER_ERROR,
@@ -33,8 +45,15 @@ def requests_handler(environ, start_response):
             },
         )
     start_response(res.status, res.headers)
-    print(f"--> {res.status}\n")
+    if res.is_error():
+        log.warn(f"{req.method} {req.route} {{}} {res.status}", '-->')
+    else:
+        log.success(f"{req.method} {req.route} {{}} {res.status}", '-->')
     return [res.body]
+
+
+def endpoint_exists(route: str) -> bool:
+    return route in get_endpoints_routes()
 
 
 def handle_spec_route(req: Request) -> Response:

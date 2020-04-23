@@ -6,12 +6,12 @@ Usage:
 Options:
   -v --log-level=LEVEL  Show log messages of at most this level. [default: info]
                         Possible values:
-                            debug   - Shows all messages, including debug information
-                            info    - Informative messages
-                            warning - Message that informs of potentially erroneous
-                            error   - Error messages
-                            none    - Show no messages
-  -q --quiet            Equivalent of --log-level=none
+                            debug    - Shows all messages, including debug information
+                            info     - Informative messages
+                            warning  - Message that informs of potentially erroneous
+                            error    - Error messages
+                            critical - Show only critical messages
+  -q --quiet            Equivalent of --log-level=critical
   -c --config=FILEPATH  Specify the configuraiton file path [default: config.yaml]
 
 Command 'start' options:
@@ -22,9 +22,10 @@ Command 'start' options:
   --workers=INTEGER|'auto'     Number of gunicorn workers to boot [default: auto]
 """
 from enum import Enum
+import os
+from logging import getLogger
 from typing import *
 from importlib import import_module
-import sys
 import docopt
 
 
@@ -33,9 +34,15 @@ class CommandNotFoundError(Exception):
 
     pass
 
+logger = getLogger()
 
 def entry_point() -> None:
     args = docopt.docopt(__doc__)
+    if args['--quiet']:
+        os.environ['log-level'] = 'CRITICAL'
+    else:
+        os.environ['log-level'] = args.get('--log-level', 'INFO').upper()
+    logger.setLevel(os.environ.get('log-level', 'INFO'))
     subcommand = args["<command>"]
     dispatch_subcommand(subcommand, args)
 

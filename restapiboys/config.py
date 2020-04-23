@@ -1,5 +1,6 @@
 from restapiboys.utils import get_path, replace_whitespace_in_keys, resolve_synonyms_in_dict, yaml
 from typing import *
+from restapiboys import log
 from enum import Enum
 
 API_CONFIG_KEYS_SYNONYMS = {
