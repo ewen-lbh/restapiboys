@@ -98,11 +98,14 @@ class Request(NamedTuple):
     host: str
     gunicorn_env: Dict[str, Any]
     client: UserAgent
+    body: str
 
     @staticmethod
     def from_gunicorn_environ(environ: Dict[str, Any]) -> "Request":
+        body_bytes = environ["wsgi.input"].read()
+        route = remove_route_trailing_slash(environ["PATH_INFO"])
         return Request(
-            route=remove_route_trailing_slash(environ["PATH_INFO"]),
+            route=route,
             is_ssl=environ["wsgi.url_scheme"] == "https",
             method=environ["REQUEST_METHOD"],
             query=parse_query_string(environ["QUERY_STRING"]),
@@ -110,6 +113,7 @@ class Request(NamedTuple):
             host=environ["HTTP_HOST"],
             client=parse_useragent(environ["HTTP_USER_AGENT"]),
             gunicorn_env=environ,
+            body=body_bytes.decode("utf-8"),  # XXX: Assumed utf8
         )
 
 
@@ -183,6 +187,7 @@ class Response:
         """
         Auto headers like Content-Type or Content-Length
         """
+        # TODO: Include Etags
         headers = {}
         # Get Content-Type
         if self.orig_body_type is bytes:
@@ -200,3 +205,5 @@ class Response:
     def is_error(self) -> bool:
         status_no = int(self.status[:3])
         return status_no >= 400
+
+

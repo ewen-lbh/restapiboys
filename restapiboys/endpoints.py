@@ -34,7 +34,7 @@ class ResourceConfig(NamedTuple):
     inherits: Optional[str] = None
 
 
-def get_endpoints_routes(parent="/") -> Iterable[str]:
+def get_endpoints_routes(parent="") -> Iterable[str]:
     folder = get_path("endpoints", parent)
     for filename in os.listdir(folder):
         if os.path.isdir(filename):
@@ -144,3 +144,15 @@ def inherit_default_endpoint(endpoint: ResourceConfig) -> ResourceConfig:
     merged_fields += endpoint.fields
     # Return the ResourceConfig
     return ResourceConfig(**{**endpoint._asdict(), "fields": merged_fields})
+
+def get_resource_config_of_route(route: str) -> Optional[ResourceConfig]:
+    resources = get_endpoints()
+    for resource in resources:
+        if resource.route == route:
+            return resource
+    return None
+
+def get_resource_headers(resource: ResourceConfig) -> dict:
+    return {
+        'Access-Control-Allow-Methods': ', '.join(resource.allowed_methods)
+    }
