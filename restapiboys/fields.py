@@ -13,7 +13,7 @@ CONFIG_KEYS_SYNONYMS = {
     "min_length": ["minimum_length"],
     "maximum": ["max"],
     "minimum": ["min"],
-    "defaults_to": ["default", "defaults", "initial_value"],
+    "default": ["defaults_to", "defaults", "initial_value"],
     "allow_empty": ["can_be_empty", "empty_allowed", "empty"],
     "read_only": ["read-only", "readonly"],
 }
@@ -46,7 +46,7 @@ class ResourceFieldConfig(NamedTuple):
     maximum: Union[int, float, None] = None
     computed: bool = False  # autoset
     required: bool = False  # autoset
-    defaults_to: Any = None
+    default: Any = None
     allow_empty: bool = True
     read_only: bool = False
     positive: Optional[

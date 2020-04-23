@@ -38,27 +38,27 @@ def requests_handler(environ, start_response):
 
 
 def handle_spec_route(req: Request) -> Response:
+    config = get_api_config()
     endpoints = get_endpoints()
     if req.route == "/specs":
         specs_urls_map = {}
         for endpoint in endpoints:
-            specs_urls_map[endpoint.identifier] = (
-                req.gunicorn_env["wsgi.url_scheme"]
-                + "://"
-                + req.gunicorn_env["HTTP_HOST"]
-                + "/specs"
-                + endpoint.endpoint
-            )
+            specs_urls_map[
+                endpoint.identifier
+            ] = f"{req.scheme}://{req.host}/specs{endpoint.route}"
         return Response(StatusCode.OK, {}, specs_urls_map)
     else:
         requested_endpoint = req.route.replace("/specs", "", 1)
         for endpoint in endpoints:
-            if requested_endpoint == endpoint.endpoint:
+            if requested_endpoint == endpoint.route:
                 return Response(
                     StatusCode.OK, {}, recursive_namedtuple_to_dict(endpoint)
                 )
         return Response(
             StatusCode.NOT_FOUND,
             {},
-            {"error": f"The requested endpoint {requested_endpoint} does not exist."},
+            {
+                "error": f"The requested endpoint {requested_endpoint} does not exist.",
+                "documentation_url": config.documentation_url,
+            },
         )

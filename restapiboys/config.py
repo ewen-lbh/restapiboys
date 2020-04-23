@@ -1,5 +1,6 @@
 from restapiboys.utils import get_path, replace_whitespace_in_keys, resolve_synonyms_in_dict, yaml
 from typing import *
+from enum import Enum
 
 API_CONFIG_KEYS_SYNONYMS = {
     'contact_info': ['contact_information', 'contact'],
@@ -9,21 +10,38 @@ API_CONFIG_KEYS_SYNONYMS = {
     'https': ['ssl', 'http over ssl']
 }
 
-class APIConfigUsers(NamedTuple):
-    fields: List[Union[Literal['email'], Literal['password'], Literal['username'], Literal['ip'], Literal['joined_at'], Literal['logged_at']]] = ['email', 'password', 'joined_at', 'logged_at', 'username']
-    verify_accounts_via: Union[Literal['email'], Literal['phone'], List[Union[Literal['email'], Literal['phone']]]] = 'email'
-    reset_accounts_via: Union[Literal['email'], Literal['phone'], List[Union[Literal['email'], Literal['phone']]]] = 'email'
+class UsersFieldsConfig(str, Enum):
+    email = 'email'
+    password = 'password'
+    username = 'username'
+    ip_address = 'ip_address'
+    joined_at = 'joined_at'
+    logged_at = 'logged_at'
 
-class APIConfigContactInfo(NamedTuple):
+class AccountsContactMethod(str, Enum):
+    email = 'email'
+    phone = 'phone'
+
+class AuthenticationMethod(str, Enum):
+    jwt = 'jwt'
+    oauth2 = 'oauth2'
+
+class UsersConfig(NamedTuple):
+    fields: List[UsersFieldsConfig] = [UsersFieldsConfig.email, UsersFieldsConfig.username, UsersFieldsConfig.password]
+    verify_accounts_via: Union[AccountsContactMethod, List[AccountsContactMethod]] = AccountsContactMethod.email
+    reset_accounts_via: Union[AccountsContactMethod, List[AccountsContactMethod]] = AccountsContactMethod.email
+
+class ContactInfo(NamedTuple):
     name: Optional[str] = None
     email: Optional[str] = None
 
 class APIConfig(NamedTuple):
-    authentification: Union[Literal['jwt'], Literal['oauth2']] = 'jwt'
-    users: APIConfigUsers = APIConfigUsers()
-    contact_info: APIConfigContactInfo = APIConfigContactInfo(),
+    authentication: AuthenticationMethod = AuthenticationMethod.jwt
+    users: UsersConfig = UsersConfig()
+    contact_info: ContactInfo = ContactInfo()
     https: bool = True
     domain_name: str = 'localhost'
+    documentation_url: str = 'localhost/specs'
 
 def get_api_config():
     filepath = get_path('config.yaml')

@@ -20,7 +20,7 @@ from restapiboys.utils import (
 
 
 class ResourceConfig(NamedTuple):
-    endpoint: str
+    route: str
     identifier: str
     fields: List[ResourceFieldConfig] = []
     allowed_methods: List[RequestMethod] = [
@@ -61,7 +61,7 @@ def get_endpoints(directory="endpoints") -> Iterable[ResourceConfig]:
             subendpoints = get_endpoints(filepath)
             for subendpoint in subendpoints:
                 # Prepend the current directory
-                subendpoint._replace(endpoint="/" + directory + subendpoint.endpoint)
+                subendpoint._replace(route="/" + directory + subendpoint.route)
                 yield subendpoint
         # Get the extension and file title (same as the endpoint)
         filetitle, extension = os.path.splitext(filename)
@@ -92,7 +92,7 @@ def get_endpoints(directory="endpoints") -> Iterable[ResourceConfig]:
         fields = resolve_fields_config(fields)
         # Create a ResourceConfig
         endpoint = ResourceConfig(
-            endpoint=f"/{filetitle}",
+            route=f"/{filetitle}",
             fields=list(fields),
             identifier=string_to_identifier(filetitle),
             **directives,

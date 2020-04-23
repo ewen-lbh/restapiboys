@@ -78,6 +78,8 @@ class Request(NamedTuple):
     is_ssl: bool
     method: RequestMethod
     query: Dict[str, str]
+    scheme: str
+    host: str
     gunicorn_env: Dict[str, Any]
 
     @staticmethod
@@ -87,6 +89,8 @@ class Request(NamedTuple):
             is_ssl=environ["wsgi.url_scheme"] == "https",
             method=environ["REQUEST_METHOD"],
             query=parse_query_string(environ["QUERY_STRING"]),
+            scheme=environ['wsgi.url_scheme'],
+            host=environ['HTTP_HOST'],
             gunicorn_env=environ,
         )
 
