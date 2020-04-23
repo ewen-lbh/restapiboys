@@ -187,7 +187,7 @@ class Response:
         """
         Auto headers like Content-Type or Content-Length
         """
-        # TODO: Include Etags
+        # TODO #2: Include Etags
         headers = {}
         # Get Content-Type
         if self.orig_body_type is bytes:
