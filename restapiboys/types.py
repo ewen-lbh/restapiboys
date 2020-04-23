@@ -161,5 +161,12 @@ def infer_field_type(field_config: Dict[str, Any]) -> Optional[str]:
             python_type = type(whitelist[0])
             infered_type = NATIVE_TYPES_MAPPING.get(python_type)
             return infered_type
-    if field_config.get('max_length')
+    if field_config.get("max_length") or field_config.get("min_length"):
+        return "string"
+    if field_config.get("minimum") or field_config.get("maximum"):
+        return "number"
+    if field_config.get("default"):
+        python_type = type(field_config["default"])
+        infered_type = NATIVE_TYPES_MAPPING.get(python_type)
+        return infered_type
     return None
