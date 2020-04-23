@@ -1,0 +1,77 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "uniqueItems": true,
+    "type": "object",
+    "additionalProperties": {
+        "type": "object",
+        "patternProperties": {
+            "is|type": {
+                "type": "string",
+                "description": "The type of this field. Use an array for multiple types. Use typename[] to denote an array with elements of that type. Use <endpointname> to reference an object defined by another endpoint."
+            },
+            "whitelist|one[ _]of": {
+                "type": "array",
+                "description": "Allow only those values"
+            },
+            "blacklist|prohibit": {
+                "type": "array",
+                "description": "Disallow those values"
+            },
+            "max(imum)?[ _]length": {
+                "type": "integer",
+                "description": "Allow strings of up to this length (inclusive)"
+            },
+            "min(imum)?[ _]length": {
+                "type": "integer",
+                "description": "Disallow strings shorter than this (inclusive)"
+            },
+            "min(imum)": {
+                "type": "number",
+                "description": "The value should be superior or equal to this"
+            },
+            "max(imum)": {
+                "type": "number",
+                "description": "The value should be inferior or equal to this"
+            },
+            "defaults?([ _]to)?": {
+                "description": "The value the field should default to"
+            },
+            "read[-_]?only": {
+                "type": "boolean",
+                "description": "Makes the field read-only. This only means that the API users cannot edit it, it does not prevent `computation.set` from changing it."
+            },
+            "(allow[_ ])?empty": {
+                "type": "boolean",
+                "description": "Allow the field value to be empty. Only applies to types based on `string` or any array types (`type_name[]`)"
+            },
+            "validat(ion|ate)": {
+                "type": "object"
+            },
+            "computation": {
+                "type": "object",
+                "patternProperties": {
+                    "when": {
+                        "type": ["string", "array"],
+                        "description": "Run the computation and set the value when the following python condition is true. An array "
+                    },
+                    "set": {
+                        "type": "string",
+                        "description": "Run the following python code when the condition is true and set its value to the following code's return value"
+                    },
+                    "react": {
+                        "type": ["string", "array"],
+                        "description": "Re-set the value each time the following properties change (if the conditions in 'when' are true)"
+                    }
+                }
+            },
+            "multiple": {
+                "type": "boolean",
+                "description": "The field is an array of values of the type defined. Use `type: type_name[]` as a shortcut"
+            },
+            "required": {
+                "type": "boolean",
+                "description": "Makes the field required, both in PUT & POST bodies and set a NOT_NULL constraint on the database. Use `field_name*` as a shortcut"
+            }
+        }
+    }
+}
