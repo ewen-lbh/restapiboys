@@ -170,6 +170,17 @@ python-versions = "*"
 version = "2020.4.4"
 
 [[package]]
+category = "dev"
+description = "a python refactoring library..."
+name = "rope"
+optional = false
+python-versions = "*"
+version = "0.16.0"
+
+[package.extras]
+dev = ["pytest"]
+
+[[package]]
 category = "main"
 description = "Simple, fast, extensible JSON encoder/decoder for Python"
 name = "simplejson"
@@ -222,7 +233,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "286bbd5b024bcf7eb3782a762ee42ccf0a3ed8dac379779d537ecb35b38240f2"
+content-hash = "f73c333cd1547212d55c2c34650f0e88138c57b0b55d427a9ae445e1faeedb6a"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -310,6 +321,11 @@ regex = [
     {file = "regex-2020.4.4-cp38-cp38-win32.whl", hash = "sha256:2a3bf8b48f8e37c3a40bb3f854bf0121c194e69a650b209628d951190b862de3"},
     {file = "regex-2020.4.4-cp38-cp38-win_amd64.whl", hash = "sha256:5bfed051dbff32fd8945eccca70f5e22b55e4148d2a8a45141a3b053d6455ae3"},
     {file = "regex-2020.4.4.tar.gz", hash = "sha256:295badf61a51add2d428a46b8580309c520d8b26e769868b922750cf3ce67142"},
+]
+rope = [
+    {file = "rope-0.16.0-py2-none-any.whl", hash = "sha256:ae1fa2fd56f64f4cc9be46493ce54bed0dd12dee03980c61a4393d89d84029ad"},
+    {file = "rope-0.16.0-py3-none-any.whl", hash = "sha256:52423a7eebb5306a6d63bdc91a7c657db51ac9babfb8341c9a1440831ecf3203"},
+    {file = "rope-0.16.0.tar.gz", hash = "sha256:d2830142c2e046f5fc26a022fe680675b6f48f81c7fc1f03a950706e746e9dfe"},
 ]
 simplejson = [
     {file = "simplejson-3.17.0-cp27-cp27m-macosx_10_13_x86_64.whl", hash = "sha256:87d349517b572964350cc1adc5a31b493bbcee284505e81637d0174b2758ba17"},
