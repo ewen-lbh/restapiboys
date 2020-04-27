@@ -2,7 +2,6 @@
 Common utilities
 """
 from typing import *
-from restapiboys import log
 import os
 import keyword
 import warnings
@@ -122,12 +121,14 @@ def replace_whitespace_in_keys(obj: Dict[str, Any], sub: str = "_") -> Dict[str,
     normalized = {}
     PATTERN = re.compile(r"")
     for key, value in obj.items():
+        if type(value) is dict:
+            value = replace_whitespace_in_keys(value)
         key = re.sub(r"\s", sub, key)
         normalized[key] = value
     return normalized
 
 
-def is_list_uniformely_typed(obj: list) -> bool:
+def is_list_uniformely_typed(obj: list) -> Optional[bool]:
     """
     Checks if the given list has all of its elements
     of the same type
@@ -138,7 +139,10 @@ def is_list_uniformely_typed(obj: list) -> bool:
     first_element_type = type(obj[0])
     return all([type(el) is first_element_type for el in obj])
 
-def resolve_synonyms_to_primary(synonyms_map: Dict[str, List[str]], string: str) -> Optional[str]:
+
+def resolve_synonyms_to_primary(
+    synonyms_map: Dict[str, List[str]], string: str
+) -> Optional[str]:
     """
     Let _k_ be the keys of `synonyms_map` and _v_ the values.
     This will take a string as input, and:
@@ -154,6 +158,7 @@ def resolve_synonyms_to_primary(synonyms_map: Dict[str, List[str]], string: str)
             return primary
     return None
 
+
 def resolve_synonyms_in_dict(synonyms_map: Dict[str, List[str]], obj: dict) -> dict:
     resolved = {}
     for key, value in obj.items():
@@ -162,7 +167,14 @@ def resolve_synonyms_in_dict(synonyms_map: Dict[str, List[str]], obj: dict) -> d
             if key == primary or key in synonym:
                 resolved_key = primary
         if type(value) is dict:
-            resolved[resolved_key] = resolve_synonyms_in_dict(synonyms_map, value)
-        else:
-            resolved[resolved_key] = value
+            value = resolve_synonyms_in_dict(synonyms_map, value)
+        resolved[resolved_key] = value
     return resolved
+
+
+def swap_keys_and_values(dikt: dict) -> dict:
+    """
+    Swaps keys and values, keys becoming values and values becoming keys. 
+    Only works with dicts having all their values that would work as keys
+    """
+    return {v: k for k, v in dikt.items()}

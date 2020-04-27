@@ -19,6 +19,9 @@ class RequestMethod(str, Enum):
     TRACE = "TRACE"
 
 
+BODYLESS_REQUEST_METHODS = ["GET", "DELETE"]
+
+
 class StatusCode(str, Enum):
     CONTINUE = "100 Continue"
     SWITCHING_PROTOCOLS = "101 Switching Protocols"
@@ -205,5 +208,3 @@ class Response:
     def is_error(self) -> bool:
         status_no = int(self.status[:3])
         return status_no >= 400
-
-
