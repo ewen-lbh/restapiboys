@@ -34,7 +34,7 @@ class ResourceConfig(NamedTuple):
     inherits: Optional[str] = None
 
 
-def get_endpoints_routes(parent="") -> Iterable[str]:
+def get_endpoints_routes(parent: str = "") -> Iterable[str]:
     folder = get_path("endpoints", parent)
     for filename in os.listdir(folder):
         if os.path.isdir(filename):
@@ -62,7 +62,7 @@ def get_endpoints(directory="endpoints") -> Iterable[ResourceConfig]:
             subendpoints = get_endpoints(filepath)
             for subendpoint in subendpoints:
                 # Prepend the current directory
-                subendpoint._replace(route="/" + directory + subendpoint.route)
+                subenpoint = subendpoint._replace(route="/" + directory + subendpoint.route)
                 yield subendpoint
         # Get the extension and file title (same as the endpoint)
         filetitle, extension = os.path.splitext(filename)
@@ -145,6 +145,7 @@ def inherit_default_endpoint(endpoint: ResourceConfig) -> ResourceConfig:
     # Return the ResourceConfig
     return ResourceConfig(**{**endpoint._asdict(), "fields": merged_fields})
 
+
 def get_resource_config_of_route(route: str) -> Optional[ResourceConfig]:
     resources = get_endpoints()
     for resource in resources:
@@ -152,7 +153,6 @@ def get_resource_config_of_route(route: str) -> Optional[ResourceConfig]:
             return resource
     return None
 
+
 def get_resource_headers(resource: ResourceConfig) -> dict:
-    return {
-        'Access-Control-Allow-Methods': ', '.join(resource.allowed_methods)
-    }
+    return {"Access-Control-Allow-Methods": ", ".join(resource.allowed_methods)}

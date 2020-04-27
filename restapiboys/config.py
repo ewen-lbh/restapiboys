@@ -1,3 +1,4 @@
+from restapiboys.log import debug
 from restapiboys.utils import get_path, replace_whitespace_in_keys, resolve_synonyms_in_dict, yaml
 from typing import *
 from restapiboys import log
@@ -30,7 +31,7 @@ class AuthenticationMethod(str, Enum):
 class UsersConfig(NamedTuple):
     fields: List[UsersFieldsConfig] = [UsersFieldsConfig.email, UsersFieldsConfig.username, UsersFieldsConfig.password]
     verify_accounts_via: Union[AccountsContactMethod, List[AccountsContactMethod]] = AccountsContactMethod.email
-    reset_accounts_via: Union[AccountsContactMethod, List[AccountsContactMethod]] = AccountsContactMethod.email
+    reset_passwords_via: Union[AccountsContactMethod, List[AccountsContactMethod]] = AccountsContactMethod.email
 
 class ContactInfo(NamedTuple):
     name: Optional[str] = None
@@ -49,5 +50,9 @@ def get_api_config():
     parsed = yaml.load_file(filepath)
     parsed = replace_whitespace_in_keys(parsed)
     parsed = resolve_synonyms_in_dict(API_CONFIG_KEYS_SYNONYMS, parsed)
+    log.debug('Parsed api config (resolved synonyms): {}', parsed)
+    parsed['users'] = UsersConfig(**parsed['users']) if 'users' in parsed.keys() else UsersConfig()
+    parsed['contact_info'] = ContactInfo(**parsed['contact_info']) if 'contact_info' in parsed.keys() else ContactInfo()
     return APIConfig(**parsed)
+    
     
