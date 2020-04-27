@@ -5,8 +5,6 @@ import subprocess
 from restapiboys.utils import get_path
 from typing import *
 from restapiboys import log
-import logging
-
 
 WATCH_FILES = (
     get_path("endpoints/*.{yaml,py}"),

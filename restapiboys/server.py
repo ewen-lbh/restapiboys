@@ -2,7 +2,12 @@ from restapiboys.validation import validate_request_data
 from restapiboys.config import get_api_config
 from restapiboys.utils import recursive_namedtuple_to_dict
 from restapiboys.http import Request, StatusCode, Response
-from restapiboys.endpoints import get_endpoints, get_endpoints_routes, get_resource_config_of_route, get_resource_headers
+from restapiboys.endpoints import (
+    get_endpoints,
+    get_endpoints_routes,
+    get_resource_config_of_route,
+    get_resource_headers,
+)
 from typing import *
 from restapiboys import log
 import multiprocessing
@@ -13,6 +18,7 @@ DEFAULT_GUNICORN_OPTIONS = {
     "workers": (multiprocessing.cpu_count() * 2) + 1,
     "reload_extra_files": "",
 }
+
 
 def requests_handler(environ, start_response):
     try:
@@ -26,7 +32,7 @@ def requests_handler(environ, start_response):
         log.debug("Request body: {}", req.body)
         available_routes = get_endpoints_routes()
         if resource and req.method not in resource.allowed_methods:
-            res = Response(StatusCode.METHOD_NOT_ALLOWED, {}, b'')
+            res = Response(StatusCode.METHOD_NOT_ALLOWED, {}, b"")
         elif req.route.startswith("/specs") and "/specs" not in available_routes:
             res = handle_spec_route(req)
         elif req.route == "/" and "/" not in available_routes:
@@ -57,7 +63,7 @@ def requests_handler(environ, start_response):
 
 
 def endpoint_exists(route: str) -> bool:
-    routes = [ '/' + r for r in get_endpoints_routes() ]
+    routes = ["/" + r for r in get_endpoints_routes()]
     return route in routes
 
 
@@ -69,12 +75,15 @@ def handle_endpoint(req: Request) -> Response:
         headers = get_resource_headers(resource)
     error = validate_request_data(req)
     if error:
-        return Response(StatusCode.BAD_REQUEST, headers, {"error": error})
+        message, data = error
+        return Response(StatusCode.BAD_REQUEST, headers, {"error": message, **data})
 
     # 2. execute code for custom routes
     # 3. (or) interact with the database
     # 4. serialize the response (handle fieldname.serialization)
-    return Response(StatusCode.NOT_IMPLEMENTED, headers, {"error": "Not implemented yet."})
+    return Response(
+        StatusCode.NOT_IMPLEMENTED, headers, {"error": "Not implemented yet."}
+    )
 
 
 def handle_spec_route(req: Request) -> Response:
