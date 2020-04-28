@@ -25,9 +25,8 @@ class ResourceConfig(NamedTuple):
     identifier: str
     fields: List[ResourceFieldConfig] = []
     allowed_methods: List[RequestMethod] = [
-        RequestMethod.GET,
         RequestMethod.POST,
-        RequestMethod.PUT,
+        RequestMethod.GET,
         RequestMethod.PATCH,
         RequestMethod.DELETE,
     ]
@@ -62,7 +61,9 @@ def get_endpoints(directory="endpoints") -> Iterable[ResourceConfig]:
             subendpoints = get_endpoints(filepath)
             for subendpoint in subendpoints:
                 # Prepend the current directory
-                subenpoint = subendpoint._replace(route="/" + directory + subendpoint.route)
+                subenpoint = subendpoint._replace(
+                    route="/" + directory + subendpoint.route
+                )
                 yield subendpoint
         # Get the extension and file title (same as the endpoint)
         filetitle, extension = os.path.splitext(filename)
