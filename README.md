@@ -6,12 +6,12 @@ __This project is in an early stage, and does not work at all yet.__
 
 _The following list tracks broad topics that need to be implemented before the framework can be considered 'usable'_:
 
-- [ ] Endpoints definition handling (WIP)
+- [x] Endpoints definition handling
 - [ ] Routing (WIP)
 - [ ] Database interactions
 - [ ] Authentification
 - [ ] Serialization
-- [ ] Request validation
+- [ ] Request validation (WIP)
 - [ ] Database table creation & migration
 
 --------------------------------------------------------
