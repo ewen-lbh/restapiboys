@@ -11,6 +11,7 @@ from restapiboys.endpoints import (
 from typing import *
 from restapiboys import log
 import multiprocessing
+import traceback
 
 
 DEFAULT_GUNICORN_OPTIONS = {
@@ -52,6 +53,7 @@ def requests_handler(environ, start_response):
             {
                 "error": str(exception),
                 "please_contact": f"{config.contact_info.name} <{config.contact_info.email}>",
+                "traceback": traceback.format_exc().split('\n')
             },
         )
     start_response(res.status, res.headers)
