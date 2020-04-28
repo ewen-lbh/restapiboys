@@ -210,6 +210,8 @@ def get_custom_types() -> Dict[str, List[ResourceFieldConfig]]:
                 )
             # Then resolve field name shortcuts
             field = resolve_field_name_shortcuts(field)
+            # Then resolve positive
+            field = resolve_config_positive(field)
             # Append to the fields list
             resolved_fields.append(field)
 
@@ -270,6 +272,7 @@ def resolve_custom_types(
             #     raise ResourceFieldConfigError(f"{field.name!r} defines a relation with an undefined endpoint ({referenced_endpoint!r}). Create the endpoint in `endpoints/{referenced_endpoint}.yaml`")
             resolved_fields.append(field)
             continue
+        
 
         # Is an unknown type
         custom_types = get_custom_types()
@@ -311,5 +314,14 @@ def resolve_custom_types(
                 resolved_fields.append(subfield._replace(name=generated_field_name))
     return resolved_fields
 
+
 # TODO: Resolve allow_empty: False to min_length = 1
 # TODO: Resolve allow_empty: True and type is sizable to min_length=0
+
+def resolve_config_positive(field: ResourceFieldConfig) -> ResourceFieldConfig:
+    if field.positive is None:
+        return field
+    if field.positive:
+        return field._replace(minimum=0)
+    else:
+        return field._replace(maximum=0)
