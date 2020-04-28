@@ -8,7 +8,7 @@ _The following list tracks broad topics that need to be implemented before the f
 
 - [x] Endpoints definition handling
 - [ ] Routing (WIP)
-- [ ] Database interactions
+- [ ] Database interactions (WIP)
 - [ ] Authentification
 - [ ] Serialization
 - [ ] Request validation (WIP)

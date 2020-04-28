@@ -3,6 +3,9 @@ from restapiboys.utils import get_path, replace_whitespace_in_keys, resolve_syno
 from typing import *
 from restapiboys import log
 from enum import Enum
+import dotenv
+import os
+from pathlib import Path
 
 API_CONFIG_KEYS_SYNONYMS = {
     'contact_info': ['contact_information', 'contact'],
@@ -11,6 +14,10 @@ API_CONFIG_KEYS_SYNONYMS = {
     'users': ['accounts'],
     'https': ['ssl', 'http over ssl']
 }
+
+class GlobalConfigError(Exception):
+    """ Used when some global configuration of the api is wrong """
+    pass
 
 class UsersFieldsConfig(str, Enum):
     email = 'email'
@@ -37,6 +44,10 @@ class ContactInfo(NamedTuple):
     name: Optional[str] = None
     email: Optional[str] = None
 
+class DatabaseCredentials(NamedTuple):
+    username: str
+    password: str
+
 class APIConfig(NamedTuple):
     authentication: AuthenticationMethod = AuthenticationMethod.jwt
     users: UsersConfig = UsersConfig()
@@ -54,5 +65,14 @@ def get_api_config():
     parsed['users'] = UsersConfig(**parsed['users']) if 'users' in parsed.keys() else UsersConfig()
     parsed['contact_info'] = ContactInfo(**parsed['contact_info']) if 'contact_info' in parsed.keys() else ContactInfo()
     return APIConfig(**parsed)
-    
-    
+
+def get_credentials():
+    """
+    Same principle as `get_api_config()`, but gets sensitive informations from `.env`
+    """
+    filepath = get_path('.env')
+    parsed = dotenv.load_dotenv(dotenv_path=Path(filepath))
+    username, password = os.getenv('COUCHDB_USERNAME'), os.getenv('COUCHDB_PASSWORD')
+    if not username or not password:
+        raise GlobalConfigError('Please set COUCHDB_USERNAME and COUCHDB_PASSWORD in your project\'s .env file')
+    return DatabaseCredentials(username, password)
