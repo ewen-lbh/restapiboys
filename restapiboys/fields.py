@@ -284,8 +284,13 @@ def resolve_custom_types(
         if len(type_config) == 1 and type_config[0].name == "_":
             field = ResourceFieldConfig(
                 **{
-                    **type_config[0]._asdict(),  # Attributes of the type as a base
-                    **field._asdict(),  # Attributes defined by the field to override the type's
+                    # Attributes of the type as a base
+                    **type_config[0]._asdict(),
+                    # Attributes defined by the field to override the type's
+                    **{
+                        # Don't override field properties set to `None`
+                        k: v for k, v in field._asdict().items() if v is not None 
+                    },
                 }
             )
             # The previous statement also overrides the field.type, so we need to set it to the custom field's "_".type
