@@ -10,3 +10,6 @@ dev:
 
 prod:
 	poetry run restapiboys start --log warn --port 80
+
+test:
+	poetry run pytest -vv
