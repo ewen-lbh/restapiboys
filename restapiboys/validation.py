@@ -27,7 +27,7 @@ def validate_request_data(req: Request) -> Optional[Tuple[str, Dict[str, Any]]]:
         return "The JSON request body is malformed", {}
     log.debug("Request is well-formed JSON")
 
-    # 3. For inserting NEW objects, check if the required fields are there.
+    # 3. For inserting NEW objects, check if the required fields are there
     if req.method in ("POST", "PUT"):
         missing_fields = []
         required_fields = [f for f in resource.fields if f.required]
@@ -41,6 +41,15 @@ def validate_request_data(req: Request) -> Optional[Tuple[str, Dict[str, Any]]]:
 
         if missing_fields:
             return "Some fields are missing", {"missing_fields": missing_fields}
+    
+    # 4. To _modify_ objects, check that we aren't trying to modify read-only field
+    if req.method in ('PATCH', 'PUT', 'POST'):
+        readonly_fields_names = {f.name for f in resource.fields if f.read_only}
+        request_fields_names  = {name for name, value in req_data.items()}
+        readonly_fields_in_request = list(readonly_fields_names & request_fields_names)
+        
+        if readonly_fields_in_request:
+            return "Some fields are read-only", {'readonly_fields': list(readonly_fields_names), 'fields_to_remove': readonly_fields_in_request}
 
     # 4. Check the type of each field
     log.debug("Checking types")
@@ -156,7 +165,8 @@ def validate_type(value: Any, correct_type: str) -> bool:
             return False
 
     if correct_type == "slug":
-        return type(value) is str and slugify(str) == str
+        log.debug('    ' * 2 + 'Slugified value: {}', f'{slugify(value)!r}')
+        return type(value) is str and slugify(value) == value
 
     raise ValueError(f"Can't check for unknown type {correct_type!r}.")
 
