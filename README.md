@@ -59,10 +59,12 @@ title:
   is: string
   max length: 500
   default: ""
+  allow empty: yes
 
 content:
   is: string
   default: ""
+  allow empty: yes
   # The content of the note is too big to be included in the "list" endpoint.
   # Only include it in /notes/:uuid endpoints
   omit in:
