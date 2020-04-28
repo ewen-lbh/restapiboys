@@ -6,7 +6,7 @@ cylic-dependencies:
 	poetry run pydeps restapiboys --display wsl-open --cluster --show-cycles
 
 dev:
-	poetry run restapiboys start --log debug --watch
+	poetry run restapiboys start --log debug --watch --port $$PORT
 
 prod:
-	poetry run restapiboys start --log warn
+	poetry run restapiboys start --log warn --port 80
