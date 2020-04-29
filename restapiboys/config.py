@@ -66,7 +66,7 @@ def get_api_config():
     parsed['contact_info'] = ContactInfo(**parsed['contact_info']) if 'contact_info' in parsed.keys() else ContactInfo()
     return APIConfig(**parsed)
 
-def get_credentials():
+def get_db_credentials():
     """
     Same principle as `get_api_config()`, but gets sensitive informations from `.env`
     """
