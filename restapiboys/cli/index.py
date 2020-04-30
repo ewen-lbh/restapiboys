@@ -13,7 +13,7 @@ Options:
                             critical - Show only critical messages
   -q --quiet            Equivalent of --log=critical
   -v --verbose          Equivalent of --log=debug
-  -c --config=FILEPATH  Specify the configuraiton file path [default: config.yaml]
+  -c --config=FILEPATH  Specify the configuration file path [default: config.yaml]
 
 Command 'start' options:
   -p --port=PORT               Port number [default: 8888]
