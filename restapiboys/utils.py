@@ -185,4 +185,38 @@ def extract_uuid_from_path(path: str) -> Optional[Tuple[str, str]]:
         route, uuid = UUID_PATTERN.search(path).groups()
         return route, uuid
     return None
-    
+
+def flatten_dict(obj: dict, key_separator: str = '.', parent_key: Union[int, str] = '') -> Dict[str, Any]:
+    """
+    Turns a nested dict into a flat one, with key names computed.
+    Example:
+    ```
+    {
+        'thing': 42,
+        'stuff': {
+            'thingie': 'lorem',
+            'ipsum': 666,
+            'dolor': {
+                'sit': 'amet',
+            },
+        },
+    }
+    ```
+    becomes, with `key_separator` set to `"."`
+    ```
+    {
+        'thing': 42,
+        'stuff.thingie': 'lorem',
+        'stuff.ipsum': 666,
+        'stuff.dolor.sit': 'amet',
+    }
+    ```
+    """
+    flattened = {}
+    for key, value in obj.items():
+        key = str(parent_key) + str(key)
+        if type(value) is dict:
+            flattened.update(flatten_dict(value, str(key)+key_separator))
+        else:
+            flattened[key] = value
+    return flattened

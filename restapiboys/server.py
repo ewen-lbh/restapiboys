@@ -4,7 +4,7 @@ from restapiboys.config import get_api_config
 from restapiboys.utils import recursive_namedtuple_to_dict, extract_uuid_from_path
 from restapiboys.http import Request, StatusCode, Response
 from restapiboys.endpoints import (
-    get_endpoints,
+    add_computed_values_to_request_data, add_default_fields_to_request_data, get_endpoints,
     get_endpoints_routes,
     get_resource_config_of_route,
     get_resource_headers,
@@ -126,6 +126,9 @@ def handle_spec_route(req: Request) -> Response:
 def interact_with_db(req: Request) -> Response:
     route, uuid = extract_uuid_from_path(req.route) or (req.route, None)
     resource = get_resource_config_of_route(route)
+    req_data = json.loads(req.body) if req.body else None
+    if resource is None:
+        return Response(StatusCode.INTERNAL_SERVER_ERROR, {}, {'error': f"Could not determine resource from route {route!r}"})
     if req.method == 'GET' and not uuid:
         data = list_items(resource.identifier)
     elif req.method == 'GET' and uuid:
@@ -133,11 +136,20 @@ def interact_with_db(req: Request) -> Response:
     elif req.method == 'DELETE' and uuid:
         data = delete_item(resource.identifier, uuid)
     elif req.method == 'PATCH' and uuid:
-        data = update_item(resource.identifier, uuid, json.loads(req.body))
+        if not req_data:
+            return Response(StatusCode.BAD_REQUEST, {}, {'error': f'Request body is empty'})
+        current_data = read_item(resource.identifier, uuid)
+        data = add_computed_values_to_request_data(resource, req_data, current_data, current_data)
+        data = {**current_data, **data}
+        data = update_item(resource.identifier, uuid, data)
     elif req.method == 'POST':
-        data = create_item(resource.identifier, uuid4(), json.loads(req.body))
+        if not req_data:
+            return Response(StatusCode.BAD_REQUEST, {}, {'error': f'Request body is empty'})
+        data = add_default_fields_to_request_data(resource, req_data)
+        data = add_computed_values_to_request_data(resource, data, {}, data)
+        data = create_item(resource.identifier, uuid4(), data)
     else:
-        return Response(StatusCode.BAD_REQUEST, {}, {})
+        return Response(StatusCode.METHOD_NOT_ALLOWED, {}, {'error': f'Method {req.method!r}', 'allowed_methods': resource.allowed_methods})
     if type(data) is bool:
         data = {'success': data}
         if not data['success']:

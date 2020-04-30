@@ -1,9 +1,11 @@
+from datetime import datetime
 from enum import Enum
 from restapiboys.directives import RESOURCE_DIRECTIVES_SYNONYMS
 from typing import *
 from restapiboys import log
 import os
 import re
+import slugify
 from restapiboys.http import RequestMethod
 from restapiboys.fields import (
     ResourceFieldConfig,
@@ -11,6 +13,7 @@ from restapiboys.fields import (
     resolve_fields_config,
 )
 from restapiboys.utils import (
+    flatten_dict,
     replace_whitespace_in_keys,
     resolve_synonyms_in_dict,
     resolve_synonyms_to_primary,
@@ -62,9 +65,7 @@ def get_endpoints(directory="endpoints") -> Iterable[ResourceConfig]:
             subendpoints = get_endpoints(filepath)
             for subendpoint in subendpoints:
                 # Prepend the current directory
-                yield subendpoint._replace(
-                    route="/" + directory + subendpoint.route
-                )
+                yield subendpoint._replace(route="/" + directory + subendpoint.route)
         # Get the extension and file title (same as the endpoint)
         filetitle, extension = os.path.splitext(filename)
         if extension != ".yaml":
@@ -96,7 +97,7 @@ def get_endpoints(directory="endpoints") -> Iterable[ResourceConfig]:
         endpoint = ResourceConfig(
             route=f"/{filetitle}",
             fields=list(fields),
-            identifier=string_to_identifier(filetitle).replace('_', '-'),
+            identifier=string_to_identifier(filetitle).replace("_", "-"),
             python_identifier=string_to_identifier(filetitle),
             **directives,
         )
@@ -158,3 +159,92 @@ def get_resource_config_of_route(route: str) -> Optional[ResourceConfig]:
 
 def get_resource_headers(resource: ResourceConfig) -> dict:
     return {"Access-Control-Allow-Methods": ", ".join(resource.allowed_methods)}
+
+
+def add_default_fields_to_request_data(
+    resource: ResourceConfig, data: Dict[str, Any]
+) -> Dict[str, Any]:
+    data = flatten_dict(data)
+    for field in resource.fields:
+        # Required field must be already set
+        # Computed field are handled by another function
+        if field.required or field.computed:
+            continue
+        # If the field is already set
+        if field.name in data.keys():
+            continue
+        # If the default value is computed, compute it
+        if is_default_value_computed(field):
+            # Get the code to run
+            code = field.default.replace("= ", "", 1)
+            default = compute_computed_fields(code)
+        # Else the default is a static value, just grab it
+        else:
+            default = field.default
+        # Add to the returned dict
+        data[field.name] = default
+    return data
+
+
+def add_computed_values_to_request_data(
+    resource: ResourceConfig,
+    new_data: Dict[str, Any],
+    old_data: Dict[str, Any],
+    exec_context_data: Dict[str, Any],
+) -> Dict[str, Any]:
+    new_data = flatten_dict(new_data)
+    computed_fields = [f for f in resource.fields if f.computed]
+    for field in computed_fields:
+        if value_needs_recomputation(field, new_data, old_data):
+            # TODO: check if "set" key is in "computation"
+            code = field.computation["set"]
+            computed = compute_computed_fields(code, context=exec_context_data)
+            log.debug("Computed value of field {}: {}", field.name, f"{computed!r}")
+            new_data[field.name] = computed
+    return new_data
+
+
+def compute_computed_fields(code: str, context: Optional[Dict[str, Any]] = None) -> Any:
+    # Set the default value of the argumet `context`
+    context = context or {}
+    # Create the locals dict
+    context = {
+        "now": lambda: datetime.now().isoformat(timespec="seconds"),
+        "slugify": slugify.slugify,
+        **context,  # The context passed as an arg overrides "base" context entries
+    }
+    # Run the code and get the returned value
+    exec(f"global __computed__; __computed__ = {code}", globals(), context)
+    # Return the value
+    global __computed__
+    return __computed__
+
+
+def is_default_value_computed(field: ResourceFieldConfig) -> Any:
+    return type(field.default) is str and field.default.startswith("= ")
+
+
+def value_needs_recomputation(
+    field: ResourceFieldConfig, new_data: Dict[str, Any], old_data: Dict[str, Any]
+) -> bool:
+    react_on = field.computation["react"]
+    # Handle react's special value '*'
+    if react_on == "*":
+        return True
+    # Handle one-item shortcut
+    if type(react_on) is not list:
+        react_on = [react_on]
+    # If any of the fields to react on has its value different in the `new_data`
+    # compared to the `old_data`, we need to recompute the field
+    # Get the map of field_name: value changed?
+    changes = {key: new_data.get(key) != old_data.get(key) for key in react_on}
+    log.debug("\tValues that changed:")
+    for key, changed in changes.items():
+        if changed:
+            log.debug(
+                "\t- {}: {} ~> {}",
+                key,
+                f"{new_data.get(key)!r}",
+                f"{old_data.get(key)!r}",
+            )
+    return any(changes.values())
