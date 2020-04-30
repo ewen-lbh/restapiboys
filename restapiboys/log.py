@@ -54,26 +54,25 @@ Colorizers = namedtuple("Colorizers", ["base", "emphasis", "prepend"])
 logger = getLogger()
 
 
-def get_log_formatter(levelno: int) -> Callable[[str, List[Any]], str]:
+def get_log_formatter(
+    levelno: int, verbatim: bool = False
+) -> Callable[[str, List[Any]], str]:
     colorize = Colorizers(**LOG_FORMAT_STYLES[levelno])
 
     def formatter(text: str, *emphasized, **emphasized_kwargs) -> str:
-        emphasized = [
-            colorize.emphasis(el) + colorize.base("").replace("\033[0m", "")
-            for el in emphasized
-        ]
-        emphasized_kwargs = {
-            k: colorize.emphasis(v) + colorize.base("").replace("\033[0m", "")
-            for k, v in emphasized_kwargs.items()
-        }
         text = colorize.base(text)
         now = datetime.now().strftime("%H:%M:%S")
-        return (
-            colored(now, attrs=["dark"])
-            + "  "
-            + colorize.prepend(text)
-            + text.format(*emphasized, **emphasized_kwargs)
-        )
+        if not verbatim:
+            emphasized = [
+                colorize.emphasis(el) + colorize.base("").replace("\033[0m", "")
+                for el in emphasized
+            ]
+            emphasized_kwargs = {
+                k: colorize.emphasis(v) + colorize.base("").replace("\033[0m", "")
+                for k, v in emphasized_kwargs.items()
+            }
+            text = text.format(*emphasized, **emphasized_kwargs)
+        return colored(now, attrs=["dark"]) + "  " + colorize.prepend(text) + text
 
     return formatter
 
@@ -124,3 +123,11 @@ def critical(text: str, *emphasized, **emphasized_kwargs):
     if logger.getEffectiveLevel() <= CRITICAL:
         print(text)
     # logger.critical(text)
+
+
+class verbatim:
+    def debug(text: str):
+        text = get_log_formatter(DEBUG, verbatim=True)(text)
+        logger.setLevel(environ.get('log-level', 'DEBUG'))
+        if logger.getEffectiveLevel() <= CRITICAL:
+            print(text)
