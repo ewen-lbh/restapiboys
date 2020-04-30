@@ -184,7 +184,6 @@ NATIVE_FIELD_TYPES = [
 
 NATIVE_TYPES_MAPPING = {int: "integer", str: "string", float: "number", bool: "boolean"}
 
-
 def get_custom_types() -> Dict[str, List[ResourceFieldConfig]]:
     """
     Gets all custom types and resolve their fields' config
@@ -325,3 +324,6 @@ def resolve_config_positive(field: ResourceFieldConfig) -> ResourceFieldConfig:
         return field._replace(minimum=0)
     else:
         return field._replace(maximum=0)
+
+
+    
