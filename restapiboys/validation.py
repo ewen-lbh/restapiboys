@@ -2,6 +2,7 @@ from json.decoder import JSONDecodeError
 from restapiboys.fields import NATIVE_TYPES_MAPPING
 from restapiboys.endpoints import get_endpoints, get_resource_config_of_route
 from restapiboys.http import Request, RequestMethod, BODYLESS_REQUEST_METHODS
+from restapiboys.utils import extract_uuid_from_path
 from restapiboys import log
 from typing import *
 import json
@@ -12,7 +13,8 @@ from slugify import slugify
 
 def validate_request_data(req: Request) -> Optional[Tuple[str, Dict[str, Any]]]:
     log.debug("Starting validation")
-    resource = get_resource_config_of_route(req.route)
+    resource_id, uuid = extract_uuid_from_path(req.route) or (req.route, None)
+    resource = get_resource_config_of_route(resource_id)
     fields_by_name = {field.name: field for field in resource.fields}
     # If the request has no associated resource config, this is a custom route.
     # Skip traditional validation, go straigth to custom validators

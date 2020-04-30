@@ -1,6 +1,7 @@
+from restapiboys.database import create_item, delete_item, list_items, read_item, update_item
 from restapiboys.validation import validate_request_data
 from restapiboys.config import get_api_config
-from restapiboys.utils import recursive_namedtuple_to_dict
+from restapiboys.utils import recursive_namedtuple_to_dict, extract_uuid_from_path
 from restapiboys.http import Request, StatusCode, Response
 from restapiboys.endpoints import (
     get_endpoints,
@@ -12,7 +13,9 @@ from typing import *
 from restapiboys import log
 import multiprocessing
 import traceback
-
+from uuid import UUID, uuid4
+import json
+import re
 
 DEFAULT_GUNICORN_OPTIONS = {
     "bind": "127.0.0.1:8080",
@@ -29,7 +32,9 @@ def requests_handler(environ, start_response):
         log.critical(str(exception))
         return
     try:
-        resource = get_resource_config_of_route(req.route)
+        resource_id, uuid = extract_uuid_from_path(req.route) or (req.route, None)
+        resource = get_resource_config_of_route(resource_id)
+        log.debug('resource_id = {0}  uuid = {1}', resource_id, uuid)
         log.debug("Request body: {}", req.body)
         available_routes = get_endpoints_routes()
         if resource and req.method not in resource.allowed_methods:
@@ -38,7 +43,7 @@ def requests_handler(environ, start_response):
             res = handle_spec_route(req)
         elif req.route == "/" and "/" not in available_routes:
             res = Response(StatusCode.FOUND, {"Location": "/specs"}, {})
-        elif not endpoint_exists(req.route):
+        elif not endpoint_exists(resource_id):
             res = Response(
                 StatusCode.NOT_FOUND,
                 {},
@@ -82,10 +87,13 @@ def handle_endpoint(req: Request) -> Response:
 
     # 2. execute code for custom routes
     # 3. (or) interact with the database
+    res = interact_with_db(req)
+    
     # 4. serialize the response (handle fieldname.serialization)
-    return Response(
-        StatusCode.NOT_IMPLEMENTED, headers, {"error": "Not implemented yet."}
-    )
+    return res
+    # return Response(
+    #     StatusCode.NOT_IMPLEMENTED, headers, {"error": "Not implemented yet."}
+    # )
 
 
 def handle_spec_route(req: Request) -> Response:
@@ -113,3 +121,26 @@ def handle_spec_route(req: Request) -> Response:
                 "documentation_url": config.documentation_url,
             },
         )
+
+
+def interact_with_db(req: Request) -> Response:
+    route, uuid = extract_uuid_from_path(req.route) or (req.route, None)
+    resource = get_resource_config_of_route(route)
+    if req.method == 'GET' and not uuid:
+        data = list_items(resource.identifier)
+    elif req.method == 'GET' and uuid:
+        data = read_item(resource.identifier, uuid)
+    elif req.method == 'DELETE' and uuid:
+        data = delete_item(resource.identifier, uuid)
+    elif req.method == 'PATCH' and uuid:
+        data = update_item(resource.identifier, uuid, json.loads(req.body))
+    elif req.method == 'POST':
+        data = create_item(resource.identifier, uuid4(), json.loads(req.body))
+    else:
+        return Response(StatusCode.BAD_REQUEST, {}, {})
+    if type(data) is bool:
+        data = {'success': data}
+        if not data['success']:
+            return Response(StatusCode.INTERNAL_SERVER_ERROR, {}, data)
+    return Response(StatusCode.OK, {}, data)
+        

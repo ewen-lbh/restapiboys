@@ -178,3 +178,11 @@ def swap_keys_and_values(dikt: dict) -> dict:
     Only works with dicts having all their values that would work as keys
     """
     return {v: k for k, v in dikt.items()}
+
+def extract_uuid_from_path(path: str) -> Optional[Tuple[str, str]]:
+    UUID_PATTERN = re.compile(r'^(.+)/([a-fA-F0-9-]+)/?$')
+    if UUID_PATTERN.match(path):
+        route, uuid = UUID_PATTERN.search(path).groups()
+        return route, uuid
+    return None
+    
