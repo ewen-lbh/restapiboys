@@ -21,13 +21,14 @@ Command 'start' options:
   --run-in-background          Run the webserver as a background process
   -w --watch                   Restart webserver when code changes
   --workers=INTEGER|'auto'     Number of gunicorn workers to boot [default: auto]
+  --debug-gunicorn             Set gunicorn's log-level to "debug"
 """
 from enum import Enum
 import os
 from logging import getLogger
 from typing import *
 from importlib import import_module
-from restapiboys.cli import start
+from restapiboys.cli import start, manage_db
 import docopt
 
 
@@ -36,26 +37,30 @@ class CommandNotFoundError(Exception):
 
     pass
 
+
 logger = getLogger()
+
 
 def entry_point() -> None:
     args = docopt.docopt(__doc__)
-    if args['--quiet']:
-        os.environ['log-level'] = 'CRITICAL'
-    if args['--verbose']:
-        os.environ['log-level'] = 'DEBUG'
+    if args["--quiet"]:
+        os.environ["log-level"] = "CRITICAL"
+    if args["--verbose"]:
+        os.environ["log-level"] = "DEBUG"
     else:
-        os.environ['log-level'] = args.get('--log', 'INFO').upper()
-    logger.setLevel(os.environ.get('log-level', 'INFO'))
+        os.environ["log-level"] = args.get("--log", "INFO").upper()
+    logger.setLevel(os.environ.get("log-level", "INFO"))
     subcommand = args["<command>"]
     dispatch_subcommand(subcommand, args)
 
 
-def dispatch_subcommand(subcommand_name: str, args: Dict[str, Any]):
-    if subcommand_name == 'start':
+def dispatch_subcommand(subcommand_name: str, args: Dict[str, Any]) -> None:
+    if subcommand_name == "start":
         start.run(args)
-        return None
+    if subcommand_name in ("manage-db", "manage-database", "database", "db"):
+        manage_db.run(args)
 
-    raise NotImplementedError(
-        f"Command {subcommand_name!r} not implemented. (does not define a 'run' function)"
-    )
+    else:
+        raise NotImplementedError(
+            f"Command {subcommand_name!r} not implemented. (does not define a 'run' function)"
+        )

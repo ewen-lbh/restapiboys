@@ -32,7 +32,7 @@ def run(args: dict):
     config = {
         "bind": bound_address,
         "workers": workers_count,
-        "log-level": "error",
+        "log-level": "debug" if args['--debug-gunicorn'] else "error",
         "reload": args["--watch"],
         # "reload-extra-file": project_yaml_files if args["--watch"] else None,
     }
