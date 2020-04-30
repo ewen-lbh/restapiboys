@@ -5,11 +5,23 @@ dependency-graph:
 cylic-dependencies:
 	poetry run pydeps restapiboys --display wsl-open --cluster --show-cycles
 
+debug:
+	# TODO: start couchdb from cli.index
+	sudo service couchdb status || sudo service couchdb start 
+	poetry run restapiboys start --log=debug --port=$$PORT --watch --debug-gunicorn
+
 dev:
-	poetry run restapiboys start --log debug --watch --port $$PORT
+	sudo service couchdb status || sudo service couchdb start 
+	poetry run restapiboys start --log=info --port=$$PORT --watch
 
 prod:
-	poetry run restapiboys start --log warn --port 80
+	sudo service couchdb status || sudo service couchdb start 
+	poetry run restapiboys start --log=warn --port=80
 
 test:
+	sudo service couchdb status || sudo service couchdb start 
 	poetry run pytest -vv
+
+coverage:
+	sudo service couchdb status || sudo service couchdb start 
+	poetry run pytest -vv --cov=restapiboys
