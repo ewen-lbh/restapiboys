@@ -143,9 +143,11 @@ class Response:
     def __init__(
         self,
         status: StatusCode,
-        headers: Dict[str, Any],
-        body: Union[list, dict, str, bytes],
+        headers: Optional[Dict[str, Any]] = None,
+        body: Union[list, dict, str, bytes] = b"",
     ):
+        # Default value for headers
+        headers = headers or {}
         # Get the HTTP Status
         self.status = status.value
         # Store the original body's type
