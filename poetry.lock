@@ -12,7 +12,7 @@ description = "Better dates & times for Python"
 name = "arrow"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
-version = "0.15.5"
+version = "0.15.6"
 
 [package.dependencies]
 python-dateutil = "*"
@@ -244,7 +244,7 @@ description = "Display module dependencies"
 name = "pydeps"
 optional = false
 python-versions = "*"
-version = "1.9.0"
+version = "1.9.3"
 
 [package.dependencies]
 stdlib-list = "*"
@@ -350,7 +350,7 @@ category = "main"
 description = "YAML parser and emitter for Python"
 name = "pyyaml"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = "*"
 version = "5.3.1"
 
 [[package]]
@@ -492,8 +492,8 @@ appdirs = [
     {file = "appdirs-1.4.3.tar.gz", hash = "sha256:9e5896d1372858f8dd3344faf4e5014d21849c756c8d5701f78f8a103b372d92"},
 ]
 arrow = [
-    {file = "arrow-0.15.5-py2.py3-none-any.whl", hash = "sha256:70729bcc831da496ca3cb4b7e89472c8e2d27d398908155e0796179f6d2d41ee"},
-    {file = "arrow-0.15.5.tar.gz", hash = "sha256:5390e464e2c5f76971b60ffa7ee29c598c7501a294bc9f5e6dadcb251a5d027b"},
+    {file = "arrow-0.15.6-py2.py3-none-any.whl", hash = "sha256:a24c1de90850f6fb2033fd6bf8a11f281e84cb54825e5eabdda219e673b52aac"},
+    {file = "arrow-0.15.6.tar.gz", hash = "sha256:eb5d339f00072cc297d7de252a2e75f272085d1231a3723f1026d1fa91367118"},
 ]
 atomicwrites = [
     {file = "atomicwrites-1.4.0-py2.py3-none-any.whl", hash = "sha256:6d1784dea7c0c8d4a5172b6c620f40b6e4cbfdf96d783691f2e1302a7b88e197"},
@@ -603,8 +603,8 @@ py = [
     {file = "py-1.8.1.tar.gz", hash = "sha256:5e27081401262157467ad6e7f851b7aa402c5852dbcb3dae06768434de5752aa"},
 ]
 pydeps = [
-    {file = "pydeps-1.9.0-py2-none-any.whl", hash = "sha256:59d6d0f5a2b8ebdb11caf0439dd36ad7b918de7c8c338ba9d526b8fd700a346d"},
-    {file = "pydeps-1.9.0.tar.gz", hash = "sha256:ba9b8c7d72cb4dfd3f4dd6b8a250c240d15824850a415fd428f2660ed371361f"},
+    {file = "pydeps-1.9.3-py2-none-any.whl", hash = "sha256:f6a61171c89ea29e39a396e81c4f22c0e1233eb1cac0f329d3f4da17a9b55038"},
+    {file = "pydeps-1.9.3.tar.gz", hash = "sha256:a31c92b39a145ff46c2a1026d62952e051401895c69019af33506c751f8bd8a1"},
 ]
 pyparsing = [
     {file = "pyparsing-2.4.7-py2.py3-none-any.whl", hash = "sha256:ef9d7589ef3c200abe66653d3f1ab1033c3c419ae9b9bdb1240a85b024efc88b"},
