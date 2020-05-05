@@ -4,7 +4,7 @@ Usage:
   restapiboys [--help] [options] <command>
 
 Options:
-  -L --log=LEVEL  Show log messages of at most this level. [default: info]
+  -L --log=LEVEL        Show log messages of at most this level. [default: info]
                         Possible values:
                             debug    - Shows all messages, including debug information
                             info     - Informative messages
@@ -22,6 +22,11 @@ Command 'start' options:
   -w --watch                   Restart webserver when code changes
   --workers=INTEGER|'auto'     Number of gunicorn workers to boot [default: auto]
   --debug-gunicorn             Set gunicorn's log-level to "debug"
+  --no-start-couchdb           Don't start CouchDB. Notice that the service will not 
+                               be started when already running, even without this option.
+                               Useful if you don't have access to `sudo`, since
+                               touching services requires `sudo systemctl` / `sudo service`
+  --force-start-couchdb        Starts CouchDB even if it is already runnning.
 """
 from enum import Enum
 import os
@@ -59,8 +64,3 @@ def dispatch_subcommand(subcommand_name: str, args: Dict[str, Any]) -> None:
         start.run(args)
     if subcommand_name in ("manage-db", "manage-database", "database", "db"):
         manage_db.run(args)
-
-    else:
-        raise NotImplementedError(
-            f"Command {subcommand_name!r} not implemented. (does not define a 'run' function)"
-        )

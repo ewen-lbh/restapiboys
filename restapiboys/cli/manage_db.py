@@ -4,8 +4,10 @@ from restapiboys.database import COUCHDB_PORT, create_database, database_exists
 from typing import *
 import webbrowser
 import platform
+import initsystem
 
 def run(args: Dict[str, Any]) -> None:
+    start_couchdb_service()
     create_databases()
     url = f'http://127.0.0.1:{COUCHDB_PORT}/_utils/'
     info('Opening {} in your webbrowser...', url)
@@ -37,4 +39,9 @@ def create_databases() -> None:
             created = create_database(db_name)
             if not created:
                 error('\t  Could not create {}', db_name)
-            
+
+def start_couchdb_service():
+    couchdb = initsystem.Service('couchdb')
+    if not couchdb.is_running():
+        info('Starting couchdb service...')
+        couchdb.start()
