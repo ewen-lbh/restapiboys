@@ -1,6 +1,6 @@
 {
   "python.venvPath": "/home/ewen/.cache/pypoetry/virtualenvs",
-  "python.pythonPath": "/home/ewen/.cache/pypoetry/virtualenvs/restapiboys-MT_SZr9F-py3.7/bin/python",
+  "python.pythonPath": "/home/ewen/.cache/pypoetry/virtualenvs/restapiboys-NMMVrvuz-py3.8/bin/python",
   "yaml.schemas": {
     "schemas/endpoint.schema.json": "**/endpoints/*.yaml"
   },
@@ -9,5 +9,6 @@
   ],
   "python.testing.unittestEnabled": false,
   "python.testing.nosetestsEnabled": false,
-  "python.testing.pytestEnabled": true
+  "python.testing.pytestEnabled": true,
+  "python.formatting.provider": "black"
 }
