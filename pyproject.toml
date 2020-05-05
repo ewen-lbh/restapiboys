@@ -23,6 +23,7 @@ httpagentparser = "^1.9.0"
 arrow = "^0.15.5"
 python-slugify = "^4.0.0"
 requests = "^2.23.0"
+initsystem = "^0.1.0"
 
 [tool.poetry.dev-dependencies]
 black = {version = "^19.10b0", allow-prereleases = true}

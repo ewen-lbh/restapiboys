@@ -158,6 +158,14 @@ testing = ["packaging", "importlib-resources"]
 
 [[package]]
 category = "main"
+description = "init-system-agnostic way to start, stop and check statuses of services"
+name = "initsystem"
+optional = false
+python-versions = ">=3.6,<4.0"
+version = "0.1.0"
+
+[[package]]
+category = "main"
 description = "An implementation of JSON Schema validation for Python"
 name = "jsonschema"
 optional = false
@@ -342,7 +350,7 @@ category = "main"
 description = "YAML parser and emitter for Python"
 name = "pyyaml"
 optional = false
-python-versions = "*"
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 version = "5.3.1"
 
 [[package]]
@@ -475,7 +483,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "unittest2", "jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "3390b60b58bc2c41d240e348c41e89004108329c7c342e192d961beb32151e6e"
+content-hash = "df541dbc860eba7ce58a1d487319351b31b0b7c426c8eac13e064528691bf9fc"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -565,6 +573,10 @@ idna = [
 importlib-metadata = [
     {file = "importlib_metadata-1.6.0-py2.py3-none-any.whl", hash = "sha256:2a688cbaa90e0cc587f1df48bdc97a6eadccdcd9c35fb3f976a09e3b5016d90f"},
     {file = "importlib_metadata-1.6.0.tar.gz", hash = "sha256:34513a8a0c4962bc66d35b359558fd8a5e10cd472d37aec5f66858addef32c1e"},
+]
+initsystem = [
+    {file = "initsystem-0.1.0-py3-none-any.whl", hash = "sha256:5758603da7d843e35cef76e1d11091e9cf18c3a4712fdc9d4ef7707848315814"},
+    {file = "initsystem-0.1.0.tar.gz", hash = "sha256:29d0c8e484650e2bbe21e3035fc9f9f3c17e203fe72ebe159376307209d55fed"},
 ]
 jsonschema = [
     {file = "jsonschema-3.2.0-py2.py3-none-any.whl", hash = "sha256:4e5b3cf8216f577bee9ce139cbe72eca3ea4f292ec60928ff24758ce626cd163"},
