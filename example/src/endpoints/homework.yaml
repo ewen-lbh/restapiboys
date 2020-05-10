@@ -17,6 +17,9 @@ completed_at():
     when:
       - progress == 1
 
+due_at*:
+  is: datetime
+
 progress:
   # 0 means not started,
   # 1 means finished.
@@ -28,3 +31,13 @@ notes:
 
 grades:
   is: <grade>[]
+
+is_late():
+  is: boolean
+  computation:
+    react: "*"
+    set: true
+    # when is a list of "or" separated conditions, `if` is a list of "and"-separated conditions
+    if:
+      - progress < 1
+      - due_at >= now()
