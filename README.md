@@ -12,7 +12,7 @@ _The following list tracks broad topics that need to be implemented before the f
 - [ ] Authentification
 - [ ] Serialization
 - [ ] Request validation (WIP)
-- [ ] Database table creation & migration
+- [ ] Database interactions (WIP)
 
 --------------------------------------------------------
 
